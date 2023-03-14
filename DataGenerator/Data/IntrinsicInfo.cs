@@ -137,7 +137,7 @@ namespace DataGenerator.Data
             {
                 ability.Name = new LocalText("Compound Eyes");
                 ability.Desc = new LocalText("Boosts the Pokémon's Attack Range.");
-                ability.OnActions.Add(-1, new AddRangeEvent(1));
+                ability.OnActions.Add(-1, new MultiplyAccuracyEvent(4, 3));
             }
             else if (ii == 15)
             {
@@ -478,9 +478,9 @@ namespace DataGenerator.Data
             else if (ii == 55)
             {
                 ability.Name = new LocalText("Hustle");
-                ability.Desc = new LocalText("Boosts the Attack stat, but lowers Attack Range.");
-                ability.OnActions.Add(0, new MultiplyCategoryEvent(BattleData.SkillCategory.Physical, 4, 3));
-                ability.OnActions.Add(-1, new AddRangeEvent(-1));
+                ability.Desc = new LocalText("Boosts the Attack stat, but lowers Accuracy.");
+                ability.OnActions.Add(0, new MultiplyCategoryEvent(BattleData.SkillCategory.Physical, 3, 2));
+                ability.OnActions.Add(-1, new MultiplyAccuracyEvent(3, 4));
             }
             else if (ii == 56)
             {
@@ -1277,7 +1277,7 @@ namespace DataGenerator.Data
             {
                 ability.Name = new LocalText("Prankster");
                 ability.Desc = new LocalText("Increases the Attack Range of status moves.");
-                ability.OnActions.Add(-1, new CategoryAddRangeEvent(BattleData.SkillCategory.Status, 2));
+                ability.OnActions.Add(-1, new CategoryAddRangeEvent(BattleData.SkillCategory.Status, 1));
             }
             else if (ii == 159)
             {

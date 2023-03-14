@@ -2176,6 +2176,10 @@ namespace DataGenerator.Data
             }
             else if (ii == 290)
             {
+
+            }
+            else if (ii == 299)
+            {
             }
             else if (ii == 300)
             {
@@ -2297,7 +2301,7 @@ namespace DataGenerator.Data
             else if (ii == 313)
             {
                 item.Name = new LocalText("Scope Lens");
-                item.Desc = new LocalText("A lens used for scoping out weak points. It boosts the holder’s critical-hit ratio.");
+                item.Desc = new LocalText("A lens used for scoping out weak points. It boosts the holder's critical-hit ratio.");
                 item.Sprite = "Specs_DarkBlue";
                 item.Price = 200;
                 item.OnActions.Add(0, new BoostCriticalEvent(1));
@@ -2305,10 +2309,10 @@ namespace DataGenerator.Data
             else if (ii == 314)
             {
                 item.Name = new LocalText("Wide Lens");
-                item.Desc = new LocalText("A magnifying lens that boosts the Pokémon's Attack Range.");
+                item.Desc = new LocalText("A magnifying lens that boosts the Pokémon's Accuracy.");
                 item.Sprite = "Specs_LightBlue";
                 item.Price = 200;
-                item.OnActions.Add(-1, new AddRangeEvent(1));
+                item.OnActions.Add(-1, new MultiplyAccuracyEvent(4, 3));
             }
             else if (ii == 315)
             {
@@ -2320,9 +2324,12 @@ namespace DataGenerator.Data
             }
             else if (ii == 316)
             {
-                //Stamina Band?
-                //There must be a way to guarantee that this item does not disrupt the balance of the game.
-                //Being given more time to act, grind, etc. is extremely powerful as a perk, especially in set-level dungeons.
+                item.Name = new LocalText("Fickle Lens");
+                item.Desc = new LocalText("A lens that boosts the Pokémon's Attack Range, but prevents it from using the same move twice in a row. This item sticks when held.");
+                item.Sprite = "Specs_LightBlue";
+                item.Price = 200;
+                item.OnActions.Add(-1, new AddRangeEvent(1));
+                item.OnRefresh.Add(0, new MoveLockEvent("last_used_move_slot", false));
             }
             else if (ii == 317)
             {
@@ -3017,9 +3024,11 @@ namespace DataGenerator.Data
                 item.Price = 200;
                 item.OnRefresh.Add(0, new SeeTrapsEvent());
             }
-            else if (ii == 407)
+            else if (ii == 408)
             {
-
+                //Stamina Band?
+                //There must be a way to guarantee that this item does not disrupt the balance of the game.
+                //Being given more time to act, grind, etc. is extremely powerful as a perk, especially in set-level dungeons.
             }
             else if (ii == 444)
             {
