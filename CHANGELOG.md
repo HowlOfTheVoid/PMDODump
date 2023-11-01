@@ -1,14 +1,14 @@
-# 0.7.3 Changes #
+# 0.7.18.3 Changes #
 
-* Version selector in updater
-* Fixed Path Wand
-* Lob Wand 70 basepower
-* Mega Punch 100 accuracy, 16PP
-* Mega Kick range 2, 15 PP
-* Hyper Fang 18PP
-* Display descriptions for mods
-* Fixed: maps failing to load under certain circumstances
-* Fixed: Certain Pokemon appearing as male-only
-* Fixed crashes in mod editor
-* Dev: Dialoguebox dimension customization
-* Dev: Ground Editor has more helpful information regarding script callbacks
+* Recruitment search screen
+* Fix off-looking letters in Chinese localization
+* Fixed an issue with poison working through magic guard
+* Localization fixes for the plsash screen
+* Disarming Voice PP 16->18, BP 30->35
+* Round BP 30->40
+* Rototiller PP 20->17, does not raise stats, instead removes all trap and terrain
+* Allies will walk toward items if they have no enemies or leaders to move to
+* Explosions will not destroy CannotDrop items
+* Fixes for minor presentation issues
+* Dev: services added by main.lua from mods will stack
+* Dev: UI:ExportSpeakerSettings() and UI:ImportSpeakerSettings() for saving and loading speaker settings

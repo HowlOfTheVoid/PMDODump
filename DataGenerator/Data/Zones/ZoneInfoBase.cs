@@ -33,7 +33,7 @@ namespace DataGenerator.Data
                 {
                     StairsFloorGen layout = new StairsFloorGen();
 
-                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<StairsMapGenContext>(structure.Floors.Count, new LocalText("Debug Dungeon Main Room")));
+                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<StairsMapGenContext>(new LocalText("Debug Dungeon Main Room")));
                     AddTitleDrop(layout);
                     AddFloorData(layout, "A07. Summit.ogg", -1, Map.SightRange.Dark, Map.SightRange.Dark);
 
@@ -231,7 +231,7 @@ namespace DataGenerator.Data
                 {
                     GridFloorGen layout = new GridFloorGen();
 
-                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(structure.Floors.Count, new LocalText("Test: Enemies")));
+                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(new LocalText("Test: Enemies")));
                     AddTitleDrop(layout);
                     AddFloorData(layout, "A07. Summit.ogg", 500, Map.SightRange.Clear, Map.SightRange.Clear);
                     AddDefaultMapStatus(layout, "default_weather", "rain");
@@ -305,7 +305,7 @@ namespace DataGenerator.Data
                     //poolSpawn.TeamSizes.Add(1, 12);
                     //spawnStep.Spawns.Add(poolSpawn, 100);
 
-                    SpecificTeamSpawner teamSpawn = new SpecificTeamSpawner(GetGenericMob("castform", "", "", "", "", "", new RandRange(18), "wander_smart", true), GetGenericMob("castform", "", "", "", "", "", new RandRange(18), "wander_smart", true));
+                    SpecificTeamSpawner teamSpawn = new SpecificTeamSpawner(GetGenericMob("castform", "", "", "", "", "", new RandRange(18), "wander_smart", true, true), GetGenericMob("castform", "", "", "", "", "", new RandRange(18), "wander_smart", true, true));
                     spawnStep.Spawns.Add(teamSpawn, 100);
                     layout.GenSteps.Add(PR_RESPAWN_MOB, spawnStep);
 
@@ -366,7 +366,7 @@ namespace DataGenerator.Data
                 {
                     GridFloorGen layout = new GridFloorGen();
 
-                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(structure.Floors.Count, new LocalText("Test: Vault Shop Boss")));
+                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(new LocalText("Test: Vault Shop Boss")));
                     AddTitleDrop(layout);
                     AddFloorData(layout, "A07. Summit.ogg", 500, Map.SightRange.Dark, Map.SightRange.Dark);
 
@@ -629,7 +629,7 @@ namespace DataGenerator.Data
                 {
                     GridFloorGen layout = new GridFloorGen();
 
-                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(structure.Floors.Count, new LocalText("Test: Monster Hall")));
+                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(new LocalText("Test: Monster Hall")));
                     AddTitleDrop(layout);
                     AddFloorData(layout, "B07. Flyaway Cliffs.ogg", 500, Map.SightRange.Dark, Map.SightRange.Dark);
 
@@ -710,7 +710,7 @@ namespace DataGenerator.Data
                 {
                     GridFloorGen layout = new GridFloorGen();
 
-                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(structure.Floors.Count, new LocalText("Test: Monster Mansion")));
+                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(new LocalText("Test: Monster Mansion")));
                     AddTitleDrop(layout);
                     AddFloorData(layout, "B07. Flyaway Cliffs.ogg", 500, Map.SightRange.Dark, Map.SightRange.Dark);
 
@@ -781,7 +781,7 @@ namespace DataGenerator.Data
                 {
                     GridFloorGen layout = new GridFloorGen();
 
-                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(structure.Floors.Count, new LocalText("Test: Monster Maze")));
+                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(new LocalText("Test: Monster Maze")));
                     AddTitleDrop(layout);
                     AddFloorData(layout, "B07. Flyaway Cliffs.ogg", 500, Map.SightRange.Dark, Map.SightRange.Dark);
 
@@ -880,7 +880,7 @@ namespace DataGenerator.Data
                     GridFloorGen layout = new GridFloorGen();
 
                     //Floor settings
-                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(structure.Floors.Count, new LocalText("Test: Hedge Maze")));
+                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(new LocalText("Test: Hedge Maze")));
                     AddTitleDrop(layout);
                     AddFloorData(layout,"B07. Flyaway Cliffs.ogg", 1000, Map.SightRange.Clear, Map.SightRange.Dark);
                     AddDefaultMapStatus(layout, "default_weather", "sandstorm");
@@ -1040,7 +1040,7 @@ namespace DataGenerator.Data
                     GridFloorGen layout = new GridFloorGen();
 
                     //Floor settings
-                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(structure.Floors.Count, new LocalText("Test: Hedge Maze 2")));
+                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(new LocalText("Test: Hedge Maze 2")));
                     AddTitleDrop(layout);
                     AddFloorData(layout, "B07. Flyaway Cliffs.ogg", 1000, Map.SightRange.Clear, Map.SightRange.Dark);
                     AddDefaultMapStatus(layout, "default_mapstatus", "gravity");
@@ -1199,7 +1199,7 @@ namespace DataGenerator.Data
                     RoomFloorGen layout = new RoomFloorGen();
 
                     //Floor settings
-                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<ListMapGenContext>(structure.Floors.Count, new LocalText("Test: Floating Islands")));
+                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<ListMapGenContext>(new LocalText("Test: Floating Islands")));
                     AddTitleDrop(layout);
                     AddFloorData(layout, "B07. Flyaway Cliffs.ogg", 2000, Map.SightRange.Clear, Map.SightRange.Dark);
                     AddDefaultMapStatus(layout, "default_mapstatus", "inverse");
@@ -1360,7 +1360,7 @@ namespace DataGenerator.Data
                     GridFloorGen layout = new GridFloorGen();
 
                     //Floor settings
-                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(structure.Floors.Count, new LocalText("Test: Grid Room Merging")));
+                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(new LocalText("Test: Grid Room Merging")));
                     AddTitleDrop(layout);
                     AddFloorData(layout, "B07. Flyaway Cliffs.ogg", 1000, Map.SightRange.Dark, Map.SightRange.Dark);
 
@@ -1546,7 +1546,7 @@ namespace DataGenerator.Data
                     GridFloorGen layout = new GridFloorGen();
 
                     //Floor settings
-                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(structure.Floors.Count, new LocalText("Test: Chasm Cave")));
+                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(new LocalText("Test: Chasm Cave")));
                     AddTitleDrop(layout);
                     AddFloorData(layout, "B07. Flyaway Cliffs.ogg", 2000, Map.SightRange.Clear, Map.SightRange.Dark);
 
@@ -1735,7 +1735,7 @@ namespace DataGenerator.Data
                     GridFloorGen layout = new GridFloorGen();
 
                     //Floor settings
-                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(structure.Floors.Count, new LocalText("Test: Wrapped Tiered Floor")));
+                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(new LocalText("Test: Wrapped Tiered Floor")));
                     AddTitleDrop(layout);
                     AddFloorData(layout, "B07. Flyaway Cliffs.ogg", 1000, Map.SightRange.Dark, Map.SightRange.Dark);
 
@@ -1835,7 +1835,7 @@ namespace DataGenerator.Data
                     GridFloorGen layout = new GridFloorGen();
 
                     //Floor settings
-                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(structure.Floors.Count, new LocalText("Test: Script Gen Step")));
+                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(new LocalText("Test: Script Gen Step")));
                     AddTitleDrop(layout);
                     AddFloorData(layout, "B07. Flyaway Cliffs.ogg", 1000, Map.SightRange.Dark, Map.SightRange.Dark);
 
@@ -1938,7 +1938,7 @@ namespace DataGenerator.Data
                     GridFloorGen layout = new GridFloorGen();
 
                     //Floor settings
-                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(structure.Floors.Count, new LocalText("Test: Script Gen Step on Grid and Floor")));
+                    layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<MapGenContext>(new LocalText("Test: Script Gen Step on Grid and Floor")));
                     AddTitleDrop(layout);
                     AddFloorData(layout, "B07. Flyaway Cliffs.ogg", 1000, Map.SightRange.Dark, Map.SightRange.Dark);
 
@@ -2100,7 +2100,7 @@ namespace DataGenerator.Data
                 layout.GenSteps.Add(PR_TILES_BARRIER, new UnbreakableBorderStep<StairsMapGenContext>(1));
 
                 //TODO: secret rooms can't scale NPC levels this way; figure it out if you ever want to scale level
-                layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<StairsMapGenContext>(0, new LocalText("Secret Room")));
+                layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<StairsMapGenContext>(new LocalText("Secret Room")));
                 AddTitleDrop(layout);
 
                 EffectTile secretStairs = new EffectTile("stairs_go_up", true);
@@ -2860,7 +2860,7 @@ namespace DataGenerator.Data
                 floorSegment.ZoneSteps.Add(new FloorNameDropZoneStep(PR_FLOOR_DATA, new LocalText("Replay Test Zone\n{0}F"), new Priority(-15)));
                 int total_floors = 10;
 
-                SpawnList<IGenPriority> shopZoneSpawns = new SpawnList<IGenPriority>();
+                SpawnList<IGenStep> shopZoneSpawns = new SpawnList<IGenStep>();
                 //kecleon shop
                 {
                     ShopStep<MapGenContext> shop = new ShopStep<MapGenContext>(GetAntiFilterList(new ImmutableRoom(), new NoEventRoom()));
@@ -2885,7 +2885,7 @@ namespace DataGenerator.Data
                         // 352 Kecleon : 168 protean : 332 aerial ace : 421 shadow claw : 60 psybeam : 364 feint
                         shop.Mobs.Add(GetShopMob("kecleon", "protean", "aerial_ace", "shadow_claw", "psybeam", "feint", new string[] { "xcl_family_kecleon_00", "xcl_family_kecleon_01", "xcl_family_kecleon_04" }, -1), 10);
                     }
-                    shopZoneSpawns.Add(new GenPriority<GenStep<MapGenContext>>(PR_SHOPS, shop), 10);
+                    shopZoneSpawns.Add(shop, 10);
                 }
 
                 //star treasures
@@ -2921,7 +2921,7 @@ namespace DataGenerator.Data
                         // 36 Clefable : 98 Magic Guard : 118 Metronome : 213 Attract : 282 Knock Off : 266 Follow Me
                         shop.Mobs.Add(GetShopMob("clefable", "magic_guard", "metronome", "attract", "knock_off", "follow_me", new string[] { "xcl_family_clefairy_00", "xcl_family_clefairy_02" }, -1), 10);
                     }
-                    shopZoneSpawns.Add(new GenPriority<GenStep<MapGenContext>>(PR_SHOPS, shop), 10);
+                    shopZoneSpawns.Add(shop, 10);
                 }
 
                 //porygon wares
@@ -2953,7 +2953,7 @@ namespace DataGenerator.Data
                         // 233 Porygon2 : 36 Trace : 176 Conversion2 : 277 Magic Coat : 161 Tri Attack : 97 Agility
                         shop.Mobs.Add(GetShopMob("porygon2", "trace", "conversion_2", "magic_coat", "tri_attack", "agility", new string[] { "xcl_family_porygon_00", "xcl_family_porygon_01", "xcl_family_porygon_02", "xcl_family_porygon_03" }, -1), 10);
                     }
-                    shopZoneSpawns.Add(new GenPriority<GenStep<MapGenContext>>(PR_SHOPS, shop), 10);
+                    shopZoneSpawns.Add(shop, 10);
                 }
 
                 //bottle shop
@@ -2980,7 +2980,7 @@ namespace DataGenerator.Data
                         shop.Mobs.Add(GetShopMob("shuckle", "sturdy", "power_trick", "bug_bite", "stone_edge", "dig", new string[] { "xcl_family_shuckle_00", "xcl_family_shuckle_01", "xcl_family_shuckle_02", "xcl_family_shuckle_03" }, -1), 10);
                     }
 
-                    shopZoneSpawns.Add(new GenPriority<GenStep<MapGenContext>>(PR_SHOPS, shop), 10);
+                    shopZoneSpawns.Add(shop, 10);
                 }
 
                 //dunsparce finds
@@ -3008,10 +3008,10 @@ namespace DataGenerator.Data
                         // 206 Dunsparce : 155 Rattled : 137 Glare : 180 Spite : 20 Bind : 506 Hex
                         shop.Mobs.Add(GetShopMob("dunsparce", "rattled", "glare", "spite", "bind", "hex", new string[] { "xcl_family_dunsparce_00", "xcl_family_dunsparce_01", "xcl_family_dunsparce_04" }, -1), 10);
                     }
-                    shopZoneSpawns.Add(new GenPriority<GenStep<MapGenContext>>(PR_SHOPS, shop), 10);
+                    shopZoneSpawns.Add(shop, 10);
                 }
 
-                SpreadStepZoneStep shopZoneStep = new SpreadStepZoneStep(new SpreadPlanSpaced(new RandRange(1, 3), new IntRange(2, 10)), shopZoneSpawns);
+                SpreadStepZoneStep shopZoneStep = new SpreadStepZoneStep(new SpreadPlanSpaced(new RandRange(1, 3), new IntRange(2, 10)), PR_SHOPS, shopZoneSpawns);
                 floorSegment.ZoneSteps.Add(shopZoneStep);
 
 
@@ -3058,11 +3058,8 @@ namespace DataGenerator.Data
                 poolSpawn.TeamSizes.Add(4, new IntRange(0, 5), 1);
                 floorSegment.ZoneSteps.Add(poolSpawn);
 
-                ScriptZoneStep scriptZoneStep = new ScriptZoneStep("SpawnMissionNpcFromSV");
-                floorSegment.ZoneSteps.Add(scriptZoneStep);
 
-
-                RandBag<IGenPriority> npcZoneSpawns = new RandBag<IGenPriority>();
+                RandBag<IGenStep> npcZoneSpawns = new RandBag<IGenStep>();
                 npcZoneSpawns.RemoveOnRoll = true;
                 //Generic Dialogue
                 {
@@ -3077,7 +3074,7 @@ namespace DataGenerator.Data
                     multiTeamSpawner.Spawns.Add(post_team);
                     PlaceRandomMobsStep<ListMapGenContext> randomSpawn = new PlaceRandomMobsStep<ListMapGenContext>(multiTeamSpawner);
                     randomSpawn.Ally = true;
-                    npcZoneSpawns.ToSpawn.Add(new GenPriority<GenStep<ListMapGenContext>>(PR_SPAWN_MOBS_EXTRA, randomSpawn));
+                    npcZoneSpawns.ToSpawn.Add(randomSpawn);
                 }
                 //Scripted Dialogue
                 {
@@ -3092,7 +3089,7 @@ namespace DataGenerator.Data
                     multiTeamSpawner.Spawns.Add(post_team);
                     PlaceRandomMobsStep<ListMapGenContext> randomSpawn = new PlaceRandomMobsStep<ListMapGenContext>(multiTeamSpawner);
                     randomSpawn.Ally = true;
-                    npcZoneSpawns.ToSpawn.Add(new GenPriority<GenStep<ListMapGenContext>>(PR_SPAWN_MOBS_EXTRA, randomSpawn));
+                    npcZoneSpawns.ToSpawn.Add(randomSpawn);
                 }
                 //Ally Team
                 {
@@ -3127,9 +3124,9 @@ namespace DataGenerator.Data
                     multiTeamSpawner.Spawns.Add(post_team);
                     PlaceRandomMobsStep<ListMapGenContext> randomSpawn = new PlaceRandomMobsStep<ListMapGenContext>(multiTeamSpawner);
                     randomSpawn.Ally = true;
-                    npcZoneSpawns.ToSpawn.Add(new GenPriority<GenStep<ListMapGenContext>>(PR_SPAWN_MOBS_EXTRA, randomSpawn));
+                    npcZoneSpawns.ToSpawn.Add(randomSpawn);
                 }
-                SpreadStepZoneStep npcZoneStep = new SpreadStepZoneStep(new SpreadPlanQuota(new RandRange(4, 5), new IntRange(7, total_floors), true), npcZoneSpawns);
+                SpreadStepZoneStep npcZoneStep = new SpreadStepZoneStep(new SpreadPlanQuota(new RandRange(4, 5), new IntRange(7, total_floors), true), PR_SPAWN_MOBS_EXTRA, npcZoneSpawns);
                 floorSegment.ZoneSteps.Add(npcZoneStep);
 
                 TileSpawnZoneStep tileSpawn = new TileSpawnZoneStep();
@@ -3137,9 +3134,9 @@ namespace DataGenerator.Data
                 tileSpawn.Spawns.Add(new EffectTile("trap_explosion", true), new IntRange(0, 5), 10);
                 floorSegment.ZoneSteps.Add(tileSpawn);
 
-                SpawnList<IGenPriority> apricornZoneSpawns = new SpawnList<IGenPriority>();
-                apricornZoneSpawns.Add(new GenPriority<GenStep<MapGenContext>>(PR_SPAWN_ITEMS, new RandomSpawnStep<MapGenContext, MapItem>(new PickerSpawner<MapGenContext, MapItem>(new PresetMultiRand<MapItem>(new MapItem("apricorn_plain"))))), 10);//plain
-                SpreadStepZoneStep apricornStep = new SpreadStepZoneStep(new SpreadPlanSpaced(new RandRange(2, 5), new IntRange(3, 25)), apricornZoneSpawns);//apricorn (variety)
+                SpawnList<IGenStep> apricornZoneSpawns = new SpawnList<IGenStep>();
+                apricornZoneSpawns.Add(new RandomSpawnStep<MapGenContext, MapItem>(new PickerSpawner<MapGenContext, MapItem>(new PresetMultiRand<MapItem>(new MapItem("apricorn_plain")))), 10);//plain
+                SpreadStepZoneStep apricornStep = new SpreadStepZoneStep(new SpreadPlanSpaced(new RandRange(2, 5), new IntRange(3, 25)), PR_SPAWN_ITEMS, apricornZoneSpawns);//apricorn (variety)
                 floorSegment.ZoneSteps.Add(apricornStep);
 
                 SpreadRoomZoneStep evoStep = new SpreadRoomZoneStep(PR_GRID_GEN_EXTRA, PR_ROOMS_GEN_EXTRA, new SpreadPlanSpaced(new RandRange(1, 1), new IntRange(0, 5)));
@@ -3207,6 +3204,7 @@ namespace DataGenerator.Data
                         guarded.Treasures.RandomSpawns.Add(new MapItem("seed_pure"), 10);
                         guarded.Treasures.SpawnAmount = 6;
                         //guard
+
                         MobSpawn spawner = new MobSpawn();
                         spawner.BaseForm = new MonsterID("dragonite", 0, "", Gender.Unknown);
                         spawner.Level = new RandRange(80);
@@ -4180,9 +4178,9 @@ namespace DataGenerator.Data
 
                 structure.Floors[floor_level - 1] = layout;
 
-                //structure.MainExit = ZoneLoc.Invalid;
-                zone.Segments.Add(structure);
             }
+            //structure.MainExit = ZoneLoc.Invalid;
+            zone.Segments.Add(structure);
         }
 
         #endregion
@@ -4191,7 +4189,7 @@ namespace DataGenerator.Data
 
         public static void AddTestTextureData<T>(MapGen<T> layout, string block, string ground, string water, bool independent = false) where T : BaseMapGenContext
         {
-            layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<T>(0, new LocalText(block)));
+            layout.GenSteps.Add(PR_FLOOR_DATA, new MapNameIDStep<T>(new LocalText(block)));
             AddTitleDrop(layout);
 
             MapTextureStep<T> textureStep = new MapTextureStep<T>();

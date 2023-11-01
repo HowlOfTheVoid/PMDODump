@@ -174,15 +174,15 @@ class Localization:
                 support[val] = lang
 
 
-        self._write_txt(os.path.join("..", "DataAsset", "String", "Special.out.txt"), header_row, sheet[1:6])
+        self._write_txt(os.path.join("..", "DataAsset", "String", "Special.out.txt"), header_row, sheet[1:8])
 
-        self._write_txt(os.path.join("..", "DataAsset", "String", "Skin.out.txt"), header_row, sheet[6:8])
+        self._write_txt(os.path.join("..", "DataAsset", "String", "Skin.out.txt"), header_row, sheet[8:10])
 
-        self._write_txt(os.path.join("..", "DataAsset", "String", "Element.out.txt"), header_row, sheet[8:27])
+        self._write_txt(os.path.join("..", "DataAsset", "String", "Element.out.txt"), header_row, sheet[10:29])
 
-        self._write_txt(os.path.join("..", "DataAsset", "String", "Rank.out.txt"), header_row, sheet[27:39])
+        self._write_txt(os.path.join("..", "DataAsset", "String", "Rank.out.txt"), header_row, sheet[29:41])
 
-        self._write_txt(os.path.join("..", "DataAsset", "String", "AI.out.txt"), header_row, sheet[39:])
+        self._write_txt(os.path.join("..", "DataAsset", "String", "AI.out.txt"), header_row, sheet[41:])
 
 
 
@@ -211,7 +211,7 @@ class Localization:
         check_result = self._service.spreadsheets().values().get(spreadsheetId=self._id, range=check_range).execute()
         total_rows = len(check_result.get('values', []))
 
-        return self._query_sheet_range(sheet_name, sheet_name + "!"+str(SHEET_CONTENT_START)+":"+str(SHEET_CONTENT_START+total_rows-1))
+        return self._query_sheet_range(sheet_name, total_rows)
 
     def _query_sheet_colored(self, sheet_name):
         """
@@ -222,12 +222,12 @@ class Localization:
         check_result = self._service.spreadsheets().values().get(spreadsheetId=self._id, range=check_range).execute()
         total_rows = len(check_result.get('values', []))
 
-        return self._query_sheet_range_colored(sheet_name, sheet_name + "!"+str(SHEET_CONTENT_START)+":"+str(SHEET_CONTENT_START+total_rows-1))
+        return self._query_sheet_range_colored(sheet_name, total_rows)
 
 
-    def _query_sheet_range(self, sheet_name, range_name):
+    def _query_sheet_range(self, sheet_name, total_rows):
 
-        header_row, content_rows = self._query_sheet_range_colored(sheet_name, range_name)
+        header_row, content_rows = self._query_sheet_range_colored(sheet_name, total_rows)
 
         uncolored_rows = []
         for idx in range(len(content_rows)):
@@ -249,7 +249,7 @@ class Localization:
 
         return header_row, uncolored_rows
 
-    def _query_sheet_range_colored(self, sheet_name, range_name):
+    def _query_sheet_range_colored(self, sheet_name, total_rows):
         """
         Gets all translations from a given google sheet, automatically figuring out height/width.
         Includes header row for language key.
@@ -259,11 +259,17 @@ class Localization:
         header_result = self._service.spreadsheets().values().get(spreadsheetId=self._id, range=header_range).execute()
         header_row = header_result.get('values', [[]])[0]
 
-        result = self._service.spreadsheets().get(spreadsheetId=self._id, ranges=range_name, includeGridData=True).execute()
-        time.sleep(WAIT_TIME)
+        result_rows = []
+
+        for row_min in range(SHEET_CONTENT_START, SHEET_CONTENT_START+total_rows, 400):
+            row_max = min(row_min + 400, SHEET_CONTENT_START+total_rows)
+            range_name = sheet_name + "!"+str(row_min)+":"+str(row_max-1)
+            result = self._service.spreadsheets().get(spreadsheetId=self._id, ranges=range_name, includeGridData=True).execute()
+            result_rows = result_rows + result['sheets'][0]['data'][0]['rowData']
+            time.sleep(WAIT_TIME)
 
         content_rows = []
-        for row in result['sheets'][0]['data'][0]['rowData']:
+        for row in result_rows:
             content_row = []
             for cell in row['values']:
                 color = DEFAULT_COLOR
@@ -517,6 +523,7 @@ class Localization:
                             body = { 'values': [[cmb_key, moved_comment, local_str] + moved_strings + ([""] * cols)] }
 
                             range_name = sheet_name + "!"+str(sheet_ind)+":"+str(sheet_ind)
+                            print("Updating range {0}".format(range_name))
                             self._service.spreadsheets().values().update(spreadsheetId=self._id, range=range_name, valueInputOption="RAW", body=body).execute()
                             # set the colors too
                             if len(requests) > 0:

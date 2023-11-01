@@ -10,6 +10,7 @@ using PMDC;
 using PMDC.Data;
 using System.IO;
 using PMDC.Dev;
+using RogueEssence.LevelGen;
 
 namespace DataGenerator.Data
 {
@@ -23,12 +24,12 @@ namespace DataGenerator.Data
         public static void AddUniversalEvent()
         {
             File.Delete(PathMod.ModPath(DataManager.DATA_PATH + "Universal" + DataManager.DATA_EXT));
-            ActiveEffect universalEvent = new ActiveEffect();
+            UniversalActiveEffect universalEvent = new UniversalActiveEffect();
 
             universalEvent.OnHits.Add(5, new HitPostEvent("was_hurt_last_turn", "last_move_hit_by_other", "last_targeted_by", "crits_landed"));
             universalEvent.OnHitTiles.Add(5, new TilePostEvent());
-            universalEvent.OnActions.Add(-10, new PreActionEvent());
-            universalEvent.AfterActions.Add(5, new UsePostEvent("last_used_move_slot", "last_used_move", "times_move_used", "last_ally_move", "missed_all_last_turn"));
+            universalEvent.OnActions.Add(-10, new PreActionEvent("last_used_move_slot", "last_used_move", "times_move_used"));
+            universalEvent.AfterActions.Add(5, new UsePostEvent("times_move_used", "last_ally_move", "missed_all_last_turn"));
             ElementMobilityEvent mobility = new ElementMobilityEvent();
             mobility.ElementPair["water"] = TerrainData.Mobility.Water;
             mobility.ElementPair["fire"] = TerrainData.Mobility.Lava;
@@ -45,11 +46,16 @@ namespace DataGenerator.Data
             universalEvent.ElementEffects.Add(-10, new PreTypeEvent());
             universalEvent.OnDeaths.Add(-10, new PreDeathEvent());
             universalEvent.OnDeaths.Add(-10, new SetDeathEvent());
-            universalEvent.OnDeaths.Add(0, new ImpostorReviveEvent("imposter"));
-            universalEvent.OnDeaths.Add(10, new HandoutRelativeExpEvent(1, 7, 10, 5, 2));
+            universalEvent.OnDeaths.Add(0, new ImpostorReviveEvent("imposter", "transformed"));
+
+            HandoutExpEvent low = new HandoutStackExpEvent(1, 7, 7);
+            HandoutExpEvent high = new HandoutHarmonicExpEvent(1, 7, 7);
+            universalEvent.OnDeaths.Add(10, new HandoutPiecewiseExpEvent(5, 0, low, high));
+            //universalEvent.OnMapStarts.Add(-10, new SingleCharScriptEvent("UpdateEscort"));
             universalEvent.OnMapStarts.Add(-10, new FadeInEvent());
             universalEvent.OnMapStarts.Add(-5, new SpecialIntroEvent());
             universalEvent.OnMapStarts.Add(-5, new ReactivateItemsEvent());
+            universalEvent.ZoneSteps.Add(new ScriptZoneStep("SpawnMissionNpcFromSV"));
             //UniversalEvent.OnWalks.Add(-5, new RevealFrontTrapEvent());
 
 
@@ -85,7 +91,7 @@ namespace DataGenerator.Data
             elementTable.TypeMatchup[17] = new int[19] { NRM,NRM,NRM,NRM,NVE,S_E,NRM,NVE,NRM,NRM,NRM,NRM,S_E,NRM,NRM,NRM,S_E,NVE,NVE};
             elementTable.TypeMatchup[18] = new int[19] { NRM,NRM,NRM,NVE,NRM,NRM,NRM,S_E,NRM,NRM,NVE,S_E,NRM,NRM,NRM,NRM,S_E,NRM,NVE};
 
-            elementTable.Effectiveness = new int[11] { 0, 0, 0, 0, 0, 0, 1, 2, 4, 6, 8 };
+            elementTable.Effectiveness = new int[11] { 0, 0, 0, 0, 0, 0, 1, 2, 4, 6, 9 };
 
             foreach (ElementInfo.Element type in Enum.GetValues(typeof(ElementInfo.Element)))
                 elementTable.TypeMap[Text.Sanitize(type.ToString()).ToLower()] = (int)type;

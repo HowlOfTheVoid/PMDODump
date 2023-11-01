@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using RogueEssence.Dungeon;
 using RogueEssence.Content;
@@ -82,7 +82,7 @@ namespace DataGenerator.Data
                 //status.AfterHittings.Add(0, new StatusSpreadEffect(true));
                 //status.AfterBeingHits.Add(0, new StatusSpreadEffect(false));
                 status.AfterActions.Add(0, new OnAggressionEvent(new AttackedThisTurnEvent()));
-                status.OnTurnEnds.Add(0, new BurnEvent());
+                status.OnTurnEnds.Add(0, new BurnEvent(8));
             }
             else if (ii == 3)
             {
@@ -164,11 +164,11 @@ namespace DataGenerator.Data
                 status.OnStatusAdds.Add(-5, new ReplaceMajorStatusEvent());
                 status.OnStatusAdds.Add(0, new StatusBattleLogEvent(new StringKey("MSG_POISON_START"), true));
                 status.OnStatusRemoves.Add(0, new StatusBattleLogEvent(new StringKey("MSG_POISON_END")));
-                status.AfterActions.Add(0, new OnAggressionEvent(new PoisonEvent(false)));
+                status.AfterActions.Add(0, new OnAggressionEvent(new PoisonEvent(false, 16, 12)));
                 status.AfterActions.Add(0, new OnAggressionEvent(new AttackedThisTurnEvent()));
-                status.OnWalks.Add(0, new PoisonSingleEvent(false));
-                status.OnWalks.Add(0, new WalkedThisTurnEvent());
-                status.OnTurnEnds.Add(1, new PoisonEndEvent(false, true));
+                status.OnWalks.Add(0, new PoisonSingleEvent(false, false, 16, 12));
+                status.OnWalks.Add(0, new WalkedThisTurnEvent(false));
+                status.OnTurnEnds.Add(1, new PoisonEndEvent(false, true, 16, 12));
                 status.OnTurnEnds.Add(0, new CountDownRemoveEvent(true));
                 status.ModifyHPs.Add(0, new HealMultEvent(0, 1));
                 status.RestoreHPs.Add(0, new HealMultEvent(1, 2));
@@ -190,16 +190,16 @@ namespace DataGenerator.Data
                 status.BeforeStatusAdds.Add(0, new PreventStatusCheck("poison", new StringKey("MSG_POISON_ALREADY")));
                 status.BeforeStatusAdds.Add(0, new SameStatusCheck(new StringKey("MSG_POISON_ALREADY")));
                 status.BeforeStatusAdds.Add(0, new OKStatusCheck(new StringKey("MSG_POISON_FAIL")));
-                status.BeforeStatusAdds.Add(0, new TypeCheck("poison", new StringKey("MSG_POISON_FAIL_ELEMENT")));
-                status.BeforeStatusAdds.Add(0, new TypeCheck("steel", new StringKey("MSG_POISON_FAIL_ELEMENT")));
+                status.BeforeStatusAdds.Add(0, new ExceptionStatusContextEvent(typeof(Corrosion), new TypeCheck("poison", new StringKey("MSG_POISON_FAIL_ELEMENT"))));
+                status.BeforeStatusAdds.Add(0, new ExceptionStatusContextEvent(typeof(Corrosion), new TypeCheck("steel", new StringKey("MSG_POISON_FAIL_ELEMENT"))));
                 status.OnStatusAdds.Add(-5, new ReplaceMajorStatusEvent());
                 status.OnStatusAdds.Add(0, new StatusBattleLogEvent(new StringKey("MSG_POISON_TOXIC_START"), true));
                 status.OnStatusRemoves.Add(0, new StatusBattleLogEvent(new StringKey("MSG_POISON_END")));
-                status.AfterActions.Add(0, new OnAggressionEvent(new PoisonEvent(true)));
+                status.AfterActions.Add(0, new OnAggressionEvent(new PoisonEvent(true, 16, 12)));
                 status.AfterActions.Add(0, new OnAggressionEvent(new AttackedThisTurnEvent()));
-                status.OnWalks.Add(0, new PoisonSingleEvent(false));
-                status.OnWalks.Add(0, new WalkedThisTurnEvent());
-                status.OnTurnEnds.Add(1, new PoisonEndEvent(false, true));
+                status.OnWalks.Add(0, new PoisonSingleEvent(false, false, 16, 12));
+                status.OnWalks.Add(0, new WalkedThisTurnEvent(false));
+                status.OnTurnEnds.Add(1, new PoisonEndEvent(false, true, 16, 12));
                 status.OnTurnEnds.Add(0, new CountDownRemoveEvent(true));
                 status.ModifyHPs.Add(0, new HealMultEvent(0, 1));
                 status.RestoreHPs.Add(0, new HealMultEvent(1, 2));
@@ -565,7 +565,7 @@ namespace DataGenerator.Data
             {
                 status.Name = new LocalText("Times Move Used");
                 status.StatusStates.Set(new RecentState());
-                status.StatusStates.Set(new CountState(1));
+                status.StatusStates.Set(new CountState());
                 status.StatusStates.Set(new CountDownState());//turns passed since it initially used the move
                 status.OnTurnEnds.Add(0, new CountUpEvent());
             }
@@ -698,7 +698,7 @@ namespace DataGenerator.Data
                 status.BeforeTryActions.Add(-1, new ForceMoveEvent("fly"));
                 status.BeforeTryActions.Add(-1, new AddContextStateEvent(new MoveCharge()));
                 status.BeforeTryActions.Add(0, new PreventActionEvent(new StringKey("MSG_CANT_USE_ITEM"), BattleActionType.Item, BattleActionType.Throw));
-                status.BeforeActions.Add(0, new RemoveOnActionEvent(false));
+                status.BeforeActions.Add(0, new RemoveOnActionEvent(false, true));
                 status.BeforeBeingHits.Add(-2, new SemiInvulEvent(new string[8] { "gust", "whirlwind", "thunder", "twister", "sky_uppercut", "smack_down", "hurricane", "thousand_arrows" }));
                 status.OnRefresh.Add(0, new AttackOnlyEvent());
                 status.OnRefresh.Add(0, new MiscEvent(new TrapState()));
@@ -724,7 +724,7 @@ namespace DataGenerator.Data
                 status.BeforeTryActions.Add(-1, new ForceMoveEvent("dive"));
                 status.BeforeTryActions.Add(-1, new AddContextStateEvent(new MoveCharge()));
                 status.BeforeTryActions.Add(0, new PreventActionEvent(new StringKey("MSG_CANT_USE_ITEM"), BattleActionType.Item, BattleActionType.Throw));
-                status.BeforeActions.Add(0, new RemoveOnActionEvent(false));
+                status.BeforeActions.Add(0, new RemoveOnActionEvent(false, true));
                 status.BeforeBeingHits.Add(-2, new SemiInvulEvent(new string[2] { "surf", "whirlpool" }));
                 status.OnRefresh.Add(0, new AttackOnlyEvent());
                 status.OnRefresh.Add(0, new MiscEvent(new TrapState()));
@@ -741,7 +741,7 @@ namespace DataGenerator.Data
                 status.BeforeTryActions.Add(-1, new ForceMoveEvent("bounce"));
                 status.BeforeTryActions.Add(-1, new AddContextStateEvent(new MoveCharge()));
                 status.BeforeTryActions.Add(0, new PreventActionEvent(new StringKey("MSG_CANT_USE_ITEM"), BattleActionType.Item, BattleActionType.Throw));
-                status.BeforeActions.Add(0, new RemoveOnActionEvent(false));
+                status.BeforeActions.Add(0, new RemoveOnActionEvent(false, true));
                 status.OnRefresh.Add(0, new ImmobilizationEvent());
                 status.BeforeBeingHits.Add(-2, new SemiInvulEvent(new string[8] { "gust", "whirlwind", "thunder", "twister", "sky_uppercut", "smack_down", "hurricane", "thousand_arrows" }));
                 status.OnRefresh.Add(0, new AttackOnlyEvent());
@@ -762,7 +762,7 @@ namespace DataGenerator.Data
                 status.BeforeTryActions.Add(-1, new ForceMoveEvent("phantom_force"));
                 status.BeforeTryActions.Add(-1, new AddContextStateEvent(new MoveCharge()));
                 status.BeforeTryActions.Add(0, new PreventActionEvent(new StringKey("MSG_CANT_USE_ITEM"), BattleActionType.Item, BattleActionType.Throw));
-                status.BeforeActions.Add(0, new RemoveOnActionEvent(false));
+                status.BeforeActions.Add(0, new RemoveOnActionEvent(false, true));
                 status.BeforeBeingHits.Add(-2, new SemiInvulEvent(new string[0] { }));
                 status.OnRefresh.Add(0, new AttackOnlyEvent());
                 status.OnRefresh.Add(0, new MiscEvent(new TrapState()));
@@ -781,7 +781,7 @@ namespace DataGenerator.Data
                 status.BeforeTryActions.Add(-1, new ForceMoveEvent("shadow_force"));
                 status.BeforeTryActions.Add(-1, new AddContextStateEvent(new MoveCharge()));
                 status.BeforeTryActions.Add(0, new PreventActionEvent(new StringKey("MSG_CANT_USE_ITEM"), BattleActionType.Item, BattleActionType.Throw));
-                status.BeforeActions.Add(0, new RemoveOnActionEvent(false));
+                status.BeforeActions.Add(0, new RemoveOnActionEvent(false, true));
                 status.BeforeBeingHits.Add(-2, new SemiInvulEvent(new string[0] { }));
                 status.OnRefresh.Add(0, new AttackOnlyEvent());
                 status.OnRefresh.Add(0, new MiscEvent(new TrapState()));
@@ -886,7 +886,7 @@ namespace DataGenerator.Data
                 status.BeforeTryActions.Add(0, new PreventActionEvent(new StringKey("MSG_CANT_USE_ITEM"), BattleActionType.Item, BattleActionType.Throw));
                 List<SingleCharEvent> effects = new List<SingleCharEvent>();
                 effects.Add(new RemoveEvent(true));
-                status.StatusStates.Set(new CountDownState(4));
+                status.StatusStates.Set(new CountDownState(3));
                 StateCollection<StatusState> states = new StateCollection<StatusState>();
                 states.Set(new CountDownState(10));
                 effects.Add(new GiveStatusEvent("confuse", states));
@@ -904,7 +904,7 @@ namespace DataGenerator.Data
                 status.BeforeTryActions.Add(0, new PreventActionEvent(new StringKey("MSG_CANT_USE_ITEM"), BattleActionType.Item, BattleActionType.Throw));
                 List<SingleCharEvent> effects = new List<SingleCharEvent>();
                 effects.Add(new RemoveEvent(true));
-                status.StatusStates.Set(new CountDownState(4));
+                status.StatusStates.Set(new CountDownState(3));
                 StateCollection<StatusState> states = new StateCollection<StatusState>();
                 states.Set(new CountDownState(10));
                 effects.Add(new GiveStatusEvent("confuse", states));
@@ -922,7 +922,7 @@ namespace DataGenerator.Data
                 status.BeforeTryActions.Add(0, new PreventActionEvent(new StringKey("MSG_CANT_USE_ITEM"), BattleActionType.Item, BattleActionType.Throw));
                 List<SingleCharEvent> effects = new List<SingleCharEvent>();
                 effects.Add(new RemoveEvent(true));
-                status.StatusStates.Set(new CountDownState(4));
+                status.StatusStates.Set(new CountDownState(3));
                 StateCollection<StatusState> states = new StateCollection<StatusState>();
                 states.Set(new CountDownState(10));
                 effects.Add(new GiveStatusEvent("confuse", states));
@@ -980,15 +980,22 @@ namespace DataGenerator.Data
             }
             else if (ii == 54)
             {
-                status.Name = new LocalText("Perish Song");
+                status.Name = new LocalText("Perish Count");
                 status.MenuName = true;
-                status.Desc = new LocalText("The Pokémon has heard Perish Song, and will faint when its countdown reaches zero.");
+                fileName = "perish_song";
+                status.Emoticon = "Exclaim_White";
+                status.Desc = new LocalText("The Pokémon has a Perish Count that drops each time it hears Perish Song. It will faint when it drops to 0.");
+                status.BeforeStatusAdds.Add(0, new StatusCountdownCheck());
                 status.StatusStates.Set(new BadStatusState());
                 status.StatusStates.Set(new TransferStatusState());
-                status.StatusStates.Set(new CountDownState(61));
-                status.OnStatusAdds.Add(0, new StatusBattleLogEvent(new StringKey("MSG_PERISH_START"), true));
+                status.StatusStates.Set(new CountDownState(3));
+                FiniteOverlayEmitter overlay = new FiniteOverlayEmitter();
+                overlay.Anim = new BGAnimData("White", 3);
+                overlay.TotalTime = 80;
+                overlay.Color = Microsoft.Xna.Framework.Color.Black;
+                overlay.Layer = DrawLayer.Bottom;
+                status.OnStatusAdds.Add(0, new PerishStatusEvent(new StringKey("MSG_PERISH_COUNT"), true, new StatusAnimEvent(overlay, "_UNK_DUN_Suspense", 60), new StatusAnimEvent(new EmptyFiniteEmitter(), "DUN_Hit_Super_Effective", 0)));
                 status.OnStatusRemoves.Add(0, new StatusBattleLogEvent(new StringKey("MSG_STATUS_END")));
-                status.OnMapTurnEnds.Add(0, new PerishEvent(20));
             }
             else if (ii == 55)
             {
@@ -1025,7 +1032,7 @@ namespace DataGenerator.Data
                 emitter.TotalParticles = 6;
                 effects.Add(new DamageAreaEvent(1, new AnimEvent(emitter, "DUN_Blowback_Orb", 30)));
                 status.StatusStates.Set(new CountDownState(3));
-                status.OnTurnEnds.Add(0, new CountDownEvent(effects));
+                status.OnMapTurnEnds.Add(0, new CountDownEvent(effects));
             }
             else if (ii == 57)
             {
@@ -1053,6 +1060,7 @@ namespace DataGenerator.Data
                 status.DrawEffect = DrawEffect.Hurt;
                 status.StatusStates.Set(new BadStatusState());
                 status.StatusStates.Set(new TransferStatusState());
+                status.BeforeStatusAdds.Add(-1, new CountDownBoostMod(typeof(GripState), 3, 2));
                 status.OnStatusAdds.Add(0, new StatusBattleLogEvent(new StringKey("MSG_TELEKINESIS_START"), true));
                 status.OnStatusRemoves.Add(0, new StatusBattleLogEvent(new StringKey("MSG_TRAP_END")));
                 status.StatusStates.Set(new CountDownState(4));
@@ -1229,7 +1237,7 @@ namespace DataGenerator.Data
                 status.OnStatusAdds.Add(0, new StatusBattleLogEvent(new StringKey("MSG_SAFEGUARD_START"), true));
                 status.OnStatusRemoves.Add(0, new StatusBattleLogEvent(new StringKey("MSG_SAFEGUARD_END")));
                 SingleEmitter emitter = new SingleEmitter(new AnimData("Circle_Small_Blue_In", 1));
-                status.BeforeStatusAdds.Add(0, new ExceptInfiltratorStatusEvent(true, new StateStatusCheck(typeof(BadStatusState), new StringKey("MSG_PROTECT_STATUS"), new StatusAnimEvent(emitter, "DUN_Screen_Hit", 10))));
+                status.BeforeStatusAdds.Add(0, new ExceptInfiltratorStatusEvent(false, new StateStatusCheck(typeof(BadStatusState), new StringKey("MSG_PROTECT_STATUS"), new StatusAnimEvent(emitter, "DUN_Screen_Hit", 10))));
                 status.StatusStates.Set(new CountDownState(15));
                 status.OnTurnStarts.Add(0, new CountDownRemoveEvent(true));
             }
@@ -1249,7 +1257,7 @@ namespace DataGenerator.Data
                 emitter.Speed = 36;
                 emitter.HeightSpeed = 10;
                 emitter.SpeedDiff = 10;
-                status.BeforeStatusAdds.Add(0, new ExceptInfiltratorStatusEvent(true, new StatChangeCheck(new List<Stat>(), new StringKey("MSG_STAT_DROP_PROTECT"), true, false, true, new StatusAnimEvent(emitter, "DUN_Pokemon_Trap", 10))));
+                status.BeforeStatusAdds.Add(0, new ExceptInfiltratorStatusEvent(false, new StatChangeCheck(new List<Stat>(), new StringKey("MSG_STAT_DROP_PROTECT"), true, false, true, new StatusAnimEvent(emitter, "DUN_Pokemon_Trap", 10))));
                 status.StatusStates.Set(new CountDownState(15));
                 status.OnTurnStarts.Add(0, new CountDownRemoveEvent(true));
             }
@@ -1456,7 +1464,7 @@ namespace DataGenerator.Data
                 status.OnStatusAdds.Add(0, new StatusBattleLogEvent(new StringKey("MSG_MAGIC_COAT_START"), true));
                 status.OnStatusRemoves.Add(0, new StatusBattleLogEvent(new StringKey("MSG_STATUS_END")));
                 SingleEmitter emitter = new SingleEmitter(new AnimData("Screen_RSE_Green", 2, -1, -1, 192), 3);
-                status.BeforeBeingHits.Add(-3, new ExceptInfiltratorEvent(true, new BounceStatusEvent(new StringKey("MSG_MAGIC_COAT"), new BattleAnimEvent(emitter, "DUN_Light_Screen", true, 30))));
+                status.BeforeBeingHits.Add(-3, new ExceptInfiltratorEvent(false, new BounceStatusEvent(new StringKey("MSG_MAGIC_COAT"), new BattleAnimEvent(emitter, "DUN_Light_Screen", true, 30))));
                 status.StatusStates.Set(new CountDownState(15));
                 status.OnTurnEnds.Add(0, new CountDownRemoveEvent(true));
             }
@@ -1697,7 +1705,7 @@ namespace DataGenerator.Data
                 newData.HitRate = 100;
                 newData.SkillStates.Set(new BasePowerState(100));
                 newData.OnHits.Add(-1, new DamageFormulaEvent());
-                status.AfterBeingHits.Add(0, new FoodNeededEvent(new InvokeCustomBattleEvent(altAction, altExplosion, newData, new StringKey("MSG_BELCH"))));
+                status.AfterBeingHits.Add(0, new FoodNeededEvent(new InvokeCustomBattleEvent(altAction, altExplosion, newData, new StringKey("MSG_BELCH"), true)));
                 status.OnTurnEnds.Add(0, new CountDownRemoveEvent(true));
                 status.StatusStates.Set(new CountDownState(4));
             }
@@ -1781,7 +1789,7 @@ namespace DataGenerator.Data
                 status.BeforeStatusAdds.Add(0, new SameStatusCheck(new StringKey("MSG_LEECH_SEED_ALREADY")));
                 status.OnStatusAdds.Add(0, new StatusBattleLogEvent(new StringKey("MSG_LEECH_SEED_START"), true));
                 status.OnStatusRemoves.Add(0, new StatusBattleLogEvent(new StringKey("MSG_LEECH_SEED_END")));
-                status.OnTurnEnds.Add(0, new LeechSeedEvent());
+                status.OnTurnEnds.Add(0, new LeechSeedEvent(new StringKey("MSG_LEECH_SEED"), 4, 12));
             }
             else if (ii == 102)
             {
@@ -1915,11 +1923,11 @@ namespace DataGenerator.Data
                 status.BeforeStatusAdds.Add(0, new SameStatusCheck(new StringKey("MSG_PLEDGE_ALREADY")));
                 status.OnStatusAdds.Add(0, new StatusBattleLogEvent(new StringKey("MSG_PLEDGE_START"), true));
                 status.OnStatusRemoves.Add(0, new StatusBattleLogEvent(new StringKey("MSG_STATUS_END")));
-                status.ProximityEvent.Radius = 3;
+                status.ProximityEvent.Radius = 4;
                 status.ProximityEvent.TargetAlignments = Alignment.Foe;
                 status.ProximityEvent.AfterBeingHits.Add(0, new FollowUpEvent("water_pledge", true, 0, new StringKey("MSG_PLEDGE")));
                 status.OnTurnEnds.Add(0, new CountDownRemoveEvent(true));
-                status.StatusStates.Set(new CountDownState(4));
+                status.StatusStates.Set(new CountDownState(6));
             }
             else if (ii == 109)
             {
@@ -1931,11 +1939,11 @@ namespace DataGenerator.Data
                 status.BeforeStatusAdds.Add(0, new SameStatusCheck(new StringKey("MSG_PLEDGE_ALREADY")));
                 status.OnStatusAdds.Add(0, new StatusBattleLogEvent(new StringKey("MSG_PLEDGE_START"), true));
                 status.OnStatusRemoves.Add(0, new StatusBattleLogEvent(new StringKey("MSG_STATUS_END")));
-                status.ProximityEvent.Radius = 3;
+                status.ProximityEvent.Radius = 4;
                 status.ProximityEvent.TargetAlignments = Alignment.Foe;
                 status.ProximityEvent.AfterBeingHits.Add(0, new FollowUpEvent("fire_pledge", true, 0, new StringKey("MSG_PLEDGE")));
                 status.OnTurnEnds.Add(0, new CountDownRemoveEvent(true));
-                status.StatusStates.Set(new CountDownState(4));
+                status.StatusStates.Set(new CountDownState(6));
             }
             else if (ii == 110)
             {
@@ -1947,11 +1955,11 @@ namespace DataGenerator.Data
                 status.BeforeStatusAdds.Add(0, new SameStatusCheck(new StringKey("MSG_PLEDGE_ALREADY")));
                 status.OnStatusAdds.Add(0, new StatusBattleLogEvent(new StringKey("MSG_PLEDGE_START"), true));
                 status.OnStatusRemoves.Add(0, new StatusBattleLogEvent(new StringKey("MSG_STATUS_END")));
-                status.ProximityEvent.Radius = 3;
+                status.ProximityEvent.Radius = 4;
                 status.ProximityEvent.TargetAlignments = Alignment.Foe;
                 status.ProximityEvent.AfterBeingHits.Add(0, new FollowUpEvent("grass_pledge", true, 0, new StringKey("MSG_PLEDGE")));
                 status.OnTurnEnds.Add(0, new CountDownRemoveEvent(true));
-                status.StatusStates.Set(new CountDownState(4));
+                status.StatusStates.Set(new CountDownState(6));
             }
             else if (ii == 111)
             {
@@ -1959,7 +1967,7 @@ namespace DataGenerator.Data
                 status.MenuName = true;
                 status.Desc = new LocalText("The Pokémon has disguised itself as a different Pokémon. Wild Pokémon of the same species will not attack it.");
                 status.StatusStates.Set(new TransferStatusState());
-
+                status.BeforeStatusAdds.Add(0, new SameStatusCheck());
                 FiniteReleaseEmitter emitter = new FiniteReleaseEmitter(new AnimData("Puff_Green", 3), new AnimData("Puff_Yellow", 3), new AnimData("Puff_Blue", 3), new AnimData("Puff_Red", 3));
                 emitter.BurstTime = 4;
                 emitter.ParticlesPerBurst = 2;
@@ -2075,7 +2083,7 @@ namespace DataGenerator.Data
                 status.BeforeStatusAdds.Add(0, new SameStatusCheck(new StringKey("MSG_NOTHING_HAPPENED")));
                 status.OnStatusAdds.Add(0, new StatusBattleLogEvent(new StringKey("MSG_RECRUIT_BOOST_START"), true));
                 status.BeforeHittings.Add(0, new FlatRecruitmentEvent(50));
-                status.BeforeBeingHits.Add(0, new FlatRecruitmentEvent(50));
+                //status.BeforeBeingHits.Add(0, new FlatRecruitmentEvent(50));
             }
             else if (ii == 119)
             {
@@ -2166,14 +2174,14 @@ namespace DataGenerator.Data
                 emitter.TotalParticles = 16;
                 effects.Add(new DamageAreaEvent(3, new AnimEvent(overlay, "", 10), new AnimEvent(emitter, "DUN_Escape_Orb", 40)));
                 status.StatusStates.Set(new CountDownState(6));
-                status.OnTurnEnds.Add(0, new CountDownEvent(effects));
+                status.OnMapTurnEnds.Add(0, new CountDownEvent(effects));
             }
             else if (ii == 123)
             {
                 status.Name = new LocalText("Powder");
                 status.MenuName = true;
                 status.Desc = new LocalText("The Pokémon is covered in a powder that causes an explosion when exposed to fire or electricity.");
-                status.Emoticon = "Exclaim_White";
+                status.Emoticon = "Exclaim_Red";
                 status.StatusStates.Set(new TransferStatusState());
                 status.OnStatusAdds.Add(0, new StatusBattleLogEvent(new StringKey("MSG_POWDER_START"), true));
 
@@ -2202,9 +2210,8 @@ namespace DataGenerator.Data
                     newData.OnHits.Add(-1, new MaxHPDamageEvent(4));
                     newData.OnHitTiles.Add(0, new RemoveTrapEvent());
                     newData.OnHitTiles.Add(0, new RemoveItemEvent(true));
-                    newData.OnHitTiles.Add(0, new RemoveTerrainEvent("", new EmptyFiniteEmitter(), "wall"));
-                    newData.OnHitTiles.Add(0, new RemoveTerrainEvent("", new EmptyFiniteEmitter(), "grass"));
-                    status.OnActions.Add(0, new ElementNeededEvent("fire", new InvokeCustomBattleEvent(altAction, altExplosion, newData, new StringKey("MSG_POWDER"))));
+                    newData.OnHitTiles.Add(0, new RemoveTerrainStateEvent("", new EmptyFiniteEmitter(), new FlagType(typeof(WallTerrainState)), new FlagType(typeof(FoliageTerrainState))));
+                    status.OnActions.Add(0, new ElementNeededEvent("fire", new InvokeCustomBattleEvent(altAction, altExplosion, newData, new StringKey("MSG_POWDER"), true)));
                 }
 
                 {
@@ -2227,9 +2234,8 @@ namespace DataGenerator.Data
                     newData.OnHits.Add(-1, new MaxHPDamageEvent(4));
                     newData.OnHitTiles.Add(0, new RemoveTrapEvent());
                     newData.OnHitTiles.Add(0, new RemoveItemEvent(true));
-                    newData.OnHitTiles.Add(0, new RemoveTerrainEvent("", new EmptyFiniteEmitter(), "wall"));
-                    newData.OnHitTiles.Add(0, new RemoveTerrainEvent("", new EmptyFiniteEmitter(), "grass"));
-                    status.OnActions.Add(0, new ElementNeededEvent("electric", new InvokeCustomBattleEvent(altAction, altExplosion, newData, new StringKey("MSG_POWDER"))));
+                    newData.OnHitTiles.Add(0, new RemoveTerrainStateEvent("", new EmptyFiniteEmitter(), new FlagType(typeof(WallTerrainState)), new FlagType(typeof(FoliageTerrainState))));
+                    status.OnActions.Add(0, new ElementNeededEvent("electric", new InvokeCustomBattleEvent(altAction, altExplosion, newData, new StringKey("MSG_POWDER"), true)));
                 }
                 status.AfterBeingHits.Add(0, new ElementNeededEvent("fire", new RemoveBattleEvent(false)));
                 status.AfterBeingHits.Add(0, new ElementNeededEvent("electric", new RemoveBattleEvent(false)));
@@ -2254,9 +2260,8 @@ namespace DataGenerator.Data
                     newData.OnHits.Add(-1, new MaxHPDamageEvent(4));
                     newData.OnHitTiles.Add(0, new RemoveTrapEvent());
                     newData.OnHitTiles.Add(0, new RemoveItemEvent(true));
-                    newData.OnHitTiles.Add(0, new RemoveTerrainEvent("", new EmptyFiniteEmitter(), "wall"));
-                    newData.OnHitTiles.Add(0, new RemoveTerrainEvent("", new EmptyFiniteEmitter(), "grass"));
-                    status.AfterBeingHits.Add(0, new ElementNeededEvent("fire", new InvokeCustomBattleEvent(altAction, altExplosion, newData, new StringKey("MSG_POWDER"))));
+                    newData.OnHitTiles.Add(0, new RemoveTerrainStateEvent("", new EmptyFiniteEmitter(), new FlagType(typeof(WallTerrainState)), new FlagType(typeof(FoliageTerrainState))));
+                    status.AfterBeingHits.Add(0, new ElementNeededEvent("fire", new InvokeCustomBattleEvent(altAction, altExplosion, newData, new StringKey("MSG_POWDER"), true)));
                 }
 
 
@@ -2280,9 +2285,8 @@ namespace DataGenerator.Data
                     newData.OnHits.Add(-1, new MaxHPDamageEvent(4));
                     newData.OnHitTiles.Add(0, new RemoveTrapEvent());
                     newData.OnHitTiles.Add(0, new RemoveItemEvent(true));
-                    newData.OnHitTiles.Add(0, new RemoveTerrainEvent("", new EmptyFiniteEmitter(), "wall"));
-                    newData.OnHitTiles.Add(0, new RemoveTerrainEvent("", new EmptyFiniteEmitter(), "grass"));
-                    status.AfterBeingHits.Add(0, new ElementNeededEvent("electric", new InvokeCustomBattleEvent(altAction, altExplosion, newData, new StringKey("MSG_POWDER"))));
+                    newData.OnHitTiles.Add(0, new RemoveTerrainStateEvent("", new EmptyFiniteEmitter(), new FlagType(typeof(WallTerrainState)), new FlagType(typeof(FoliageTerrainState))));
+                    status.AfterBeingHits.Add(0, new ElementNeededEvent("electric", new InvokeCustomBattleEvent(altAction, altExplosion, newData, new StringKey("MSG_POWDER"), true)));
                 }
             }
             else if (ii == 124)
@@ -2369,7 +2373,7 @@ namespace DataGenerator.Data
                 status.BeforeTryActions.Add(-1, new AddContextStateEvent(new MoveCharge()));
                 status.BeforeTryActions.Add(0, new PreventActionEvent(new StringKey("MSG_CANT_USE_ITEM"), BattleActionType.Item, BattleActionType.Throw));
                 status.BeforeActions.Add(0, new ForceFaceTargetEvent());
-                status.BeforeActions.Add(0, new RemoveOnActionEvent(false));
+                status.BeforeActions.Add(0, new RemoveOnActionEvent(false, true));
                 status.BeforeBeingHits.Add(-2, new SemiInvulEvent(new string[8] { "gust", "whirlwind", "thunder", "twister", "sky_uppercut", "smack_down", "hurricane", "thousand_arrows" }));
                 status.OnRefresh.Add(0, new AttackOnlyEvent());
                 status.OnRefresh.Add(0, new ImmobilizationEvent());
@@ -2418,6 +2422,41 @@ namespace DataGenerator.Data
                 status.BeforeBeingHits.Add(0, new ProtectEvent(new BattleAnimEvent(emitter, "DUN_Screen_Hit", true, 10)));
                 status.StatusStates.Set(new CountDownState(3));
                 status.OnTurnEnds.Add(0, new CountDownRemoveEvent(true));
+            }
+            else if (ii == 135)
+            {
+                status.Name = new LocalText("Transformed");
+                status.StatusStates.Set(new HPState());//HP before transform
+            }
+            else if (ii == 136)
+            {
+                status.Name = new LocalText("King's Shield");
+                status.MenuName = true;
+                status.Desc = new LocalText("The Pokémon is protected from all damaging moves. This status wears off after a few turns, or if the Pokémon attacks.");
+                status.Emoticon = "Shield_Yellow";
+                status.StatusStates.Set(new TransferStatusState());
+                status.BeforeStatusAdds.Add(0, new SameStatusCheck(new StringKey("MSG_PROTECT_ALREADY")));
+                status.OnStatusAdds.Add(0, new StatusBattleLogEvent(new StringKey("MSG_PROTECT"), true));
+                status.OnStatusRemoves.Add(0, new StatusBattleLogEvent(new StringKey("MSG_STATUS_END")));
+                SingleEmitter emitter = new SingleEmitter(new AnimData("Protect_Yellow", 2));
+                status.BeforeBeingHits.Add(0, new AttackingMoveNeededEvent(new ProtectEvent(new BattleAnimEvent(emitter, "DUN_Screen_Hit", true, 10))));
+                //TODO: this is kind of a hack and should technically be bound to the protection from before via some kind of context state
+                //currently te bug won't surface unless Unseen Fist or some other move is added the ignores protect but does not lift it
+                status.BeforeBeingHits.Add(15, new AttackingMoveNeededEvent(new StatusStackBattleEvent("mod_attack", false, true, -1)));
+                status.StatusStates.Set(new RecentState());
+                status.StatusStates.Set(new CountDownState(3));
+                status.OnTurnEnds.Add(0, new CountDownRemoveEvent(true));
+                status.BeforeActions.Add(0, new RemoveRecentEvent());
+                status.AfterActions.Add(0, new ExceptionStatusEvent(typeof(RecentState), new RemoveOnActionEvent(true)));
+            }
+            else if (ii == 137)
+            {
+                status.Name = new LocalText("Attack Response");
+                status.MenuName = false;
+                status.Comment = "Used to trigger scripts when an enemy or neutral is attacked.";
+
+                status.AfterBeingHits.Add(0, new OnHitEvent(true, false, 100, new BattleScriptStateEvent()));
+                status.StatusStates.Set(new ScriptCallState());
             }
 
             if (status.Name.DefaultText.StartsWith("**"))

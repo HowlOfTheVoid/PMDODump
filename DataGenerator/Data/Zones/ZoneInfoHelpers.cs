@@ -94,8 +94,7 @@ namespace DataGenerator.Data
 
         public static void AddTitleDrop<T>(MapGen<T> layout) where T : BaseMapGenContext
         {
-            MapEffectStep<T> fade = new MapEffectStep<T>();
-            fade.Effect.OnMapStarts.Add(-15, new FadeTitleEvent());
+            MapTitleDropStep<T> fade = new MapTitleDropStep<T>(new Priority(-15));
             layout.GenSteps.Add(PR_FLOOR_DATA, fade);
         }
 
@@ -124,30 +123,30 @@ namespace DataGenerator.Data
 
         public static void AddItemSpreadZoneStep(ZoneSegmentBase floorSegment, SpreadPlanBase spreadPlan, SpawnList<MapItem> items)
         {
-            SpawnList<IGenPriority> zoneSpawns = new SpawnList<IGenPriority>();
+            SpawnList<IGenStep> zoneSpawns = new SpawnList<IGenStep>();
             foreach (SpawnList<MapItem>.SpawnRate spawnRate in items)
-                zoneSpawns.Add(new GenPriority<GenStep<MapGenContext>>(PR_SPAWN_ITEMS, new RandomSpawnStep<MapGenContext, MapItem>(new PickerSpawner<MapGenContext, MapItem>(new PresetMultiRand<MapItem>(spawnRate.Spawn)))), spawnRate.Rate);
-            SpreadStepZoneStep zoneStep = new SpreadStepZoneStep(spreadPlan, zoneSpawns);
+                zoneSpawns.Add(new RandomSpawnStep<MapGenContext, MapItem>(new PickerSpawner<MapGenContext, MapItem>(new PresetMultiRand<MapItem>(spawnRate.Spawn))), spawnRate.Rate);
+            SpreadStepZoneStep zoneStep = new SpreadStepZoneStep(spreadPlan, PR_SPAWN_ITEMS, zoneSpawns);
             floorSegment.ZoneSteps.Add(zoneStep);
         }
 
         public static void AddHiddenStairStep(ZoneSegmentBase floorSegment, SpreadPlanBase spreadPlan, int segDiff)
         {
-            SpawnRangeList<IGenPriority> exitZoneSpawns = new SpawnRangeList<IGenPriority>();
+            SpawnRangeList<IGenStep> exitZoneSpawns = new SpawnRangeList<IGenStep>();
             EffectTile secretTile = new EffectTile("stairs_secret_down", false);
             secretTile.TileStates.Set(new DestState(new SegLoc(segDiff, 0), true));
             RandomSpawnStep<BaseMapGenContext, EffectTile> trapStep = new RandomSpawnStep<BaseMapGenContext, EffectTile>(new PickerSpawner<BaseMapGenContext, EffectTile>(new PresetMultiRand<EffectTile>(secretTile)));
-            exitZoneSpawns.Add(new GenPriority<GenStep<BaseMapGenContext>>(PR_SPAWN_TRAPS, trapStep), spreadPlan.FloorRange, 10);
-            SpreadStepRangeZoneStep exitZoneStep = new SpreadStepRangeZoneStep(spreadPlan, exitZoneSpawns);
+            exitZoneSpawns.Add(trapStep, spreadPlan.FloorRange, 10);
+            SpreadStepRangeZoneStep exitZoneStep = new SpreadStepRangeZoneStep(spreadPlan, PR_SPAWN_TRAPS, exitZoneSpawns);
             exitZoneStep.ModStates.Add(new FlagType(typeof(StairsModGenState)));
             floorSegment.ZoneSteps.Add(exitZoneStep);
         }
 
         public static void AddMysteriosityZoneStep(ZoneSegmentBase floorSegment, SpreadPlanBase spreadPlan, int baseChance, int segDiff)
         {
-            SpawnRangeList<IGenPriority> exitZoneSpawns = new SpawnRangeList<IGenPriority>();
-            exitZoneSpawns.Add(new GenPriority<GenStep<ListMapGenContext>>(PR_SPAWN_TRAPS, new ScriptGenStep<ListMapGenContext>("Mysteriosity", "{BaseChance="+baseChance+", SegDiff="+segDiff+"}")), spreadPlan.FloorRange, 10);
-            SpreadStepRangeZoneStep exitZoneStep = new SpreadStepRangeZoneStep(spreadPlan, exitZoneSpawns);
+            SpawnRangeList<IGenStep> exitZoneSpawns = new SpawnRangeList<IGenStep>();
+            exitZoneSpawns.Add(new ScriptGenStep<ListMapGenContext>("Mysteriosity", "{BaseChance="+baseChance+", SegDiff="+segDiff+"}"), spreadPlan.FloorRange, 10);
+            SpreadStepRangeZoneStep exitZoneStep = new SpreadStepRangeZoneStep(spreadPlan, PR_SPAWN_TRAPS, exitZoneSpawns);
             floorSegment.ZoneSteps.Add(exitZoneStep);
         }
 
@@ -164,7 +163,7 @@ namespace DataGenerator.Data
             layout.GenSteps.Add(PR_FLOOR_DATA, statusData);
         }
 
-        public static void AddTextureData<T>(MapGen<T> layout, string block, string ground, string water, string element, bool independent = false) where T : BaseMapGenContext
+        public static void AddTextureData<T>(MapGen<T> layout, string block, string ground, string water, string element, bool layered = false) where T : BaseMapGenContext
         {
             MapTextureStep<T> textureStep = new MapTextureStep<T>();
             {
@@ -172,12 +171,12 @@ namespace DataGenerator.Data
                 textureStep.GroundTileset = ground;
                 textureStep.WaterTileset = water;
                 textureStep.BlockTileset = block;
-                textureStep.LayeredGround = independent;
+                textureStep.LayeredGround = layered;
             }
             layout.GenSteps.Add(PR_TEXTURES, textureStep);
         }
 
-        public static void AddSpecificTextureData<T>(MapGen<T> layout, string block, string ground, string water, string grass, string element, bool independent = false) where T : BaseMapGenContext
+        public static void AddSpecificTextureData<T>(MapGen<T> layout, string block, string ground, string water, string grass, string element) where T : BaseMapGenContext
         {
             MapDictTextureStep<T> textureStep = new MapDictTextureStep<T>();
             {
@@ -358,8 +357,8 @@ namespace DataGenerator.Data
 
             MapTerrainStencil<T> terrainStencil = new MapTerrainStencil<T>(true, false, false, false);
             NoChokepointTerrainStencil<T> roomStencil = new NoChokepointTerrainStencil<T>(new MapTerrainStencil<T>(true, false, false, false));
-
-            trapStep.TerrainStencil = new MultiTerrainStencil<T>(false, terrainStencil, roomStencil);
+            TileEffectStencil<T> noTile = new TileEffectStencil<T>(true);
+            trapStep.TerrainStencil = new MultiTerrainStencil<T>(false, terrainStencil, roomStencil, noTile);
 
             layout.GenSteps.Add(PR_WATER, trapStep);
         }
@@ -369,15 +368,17 @@ namespace DataGenerator.Data
             string coverTerrain = "grass";
             {
                 BlobTilePercentStencil<T> terrainPercentStencil = new BlobTilePercentStencil<T>(50, new MapTerrainStencil<T>(false, false, true, true));
-
-                BlobWaterStep<T> coverStep = new BlobWaterStep<T>(roomBlobCount, new Tile(coverTerrain), new MapTerrainStencil<T>(true, false, false, false), terrainPercentStencil, roomBlobSize, new IntRange(Math.Max(roomBlobSize.Min, 6), Math.Max(roomBlobSize.Max * 3 / 2, 15)));
+                MapTerrainStencil<T> terrainStencil = new MapTerrainStencil<T>(true, false, false, false);
+                TileEffectStencil<T> noTile = new TileEffectStencil<T>(true);
+                BlobWaterStep<T> coverStep = new BlobWaterStep<T>(roomBlobCount, new Tile(coverTerrain), new MultiTerrainStencil<T>(false, terrainStencil, noTile), terrainPercentStencil, roomBlobSize, new IntRange(Math.Max(roomBlobSize.Min, 6), Math.Max(roomBlobSize.Max * 3 / 2, 15)));
                 layout.GenSteps.Add(PR_WATER, coverStep);
             }
             {
                 MapTerrainStencil<T> terrainStencil = new MapTerrainStencil<T>(true, false, false, false);
                 NoChokepointTerrainStencil<T> roomStencil = new NoChokepointTerrainStencil<T>(new MapTerrainStencil<T>(true, false, false, false));
                 roomStencil.Negate = true;
-                PerlinWaterStep<T> coverStep = new PerlinWaterStep<T>(hallPercent, 4, new Tile(coverTerrain), new MultiTerrainStencil<T>(false, terrainStencil, roomStencil), 0, false);
+                TileEffectStencil<T> noTile = new TileEffectStencil<T>(true);
+                PerlinWaterStep<T> coverStep = new PerlinWaterStep<T>(hallPercent, 4, new Tile(coverTerrain), new MultiTerrainStencil<T>(false, terrainStencil, roomStencil, noTile), 0, false);
                 layout.GenSteps.Add(PR_WATER, coverStep);
             }
 
@@ -609,6 +610,35 @@ namespace DataGenerator.Data
         }
 
 
+        static TeamMemberSpawn GetBoostedTeamMob(string species, string ability, string move1, string move2, string move3, string move4, RandRange level, int boost,
+            string tactic = "wander_normal", bool sleeping = false, bool unrecruitable = false)
+        {
+            return GetBoostedTeamMob(new MonsterID(species, 0, "", Gender.Unknown), ability, move1, move2, move3, move4, level, boost, TeamMemberSpawn.MemberRole.Normal, tactic, sleeping, unrecruitable);
+
+        }
+
+        static TeamMemberSpawn GetBoostedTeamMob(string species, string ability, string move1, string move2, string move3, string move4, RandRange level, int boost,
+            TeamMemberSpawn.MemberRole role, string tactic = "wander_normal", bool sleeping = false, bool unrecruitable = false)
+        {
+            return GetBoostedTeamMob(new MonsterID(species, 0, "", Gender.Unknown), ability, move1, move2, move3, move4, level, boost, TeamMemberSpawn.MemberRole.Normal, tactic, sleeping, unrecruitable);
+        }
+
+        static TeamMemberSpawn GetBoostedTeamMob(MonsterID id, string ability, string move1, string move2, string move3, string move4, RandRange level, int boost,
+            TeamMemberSpawn.MemberRole role, string tactic = "wander_normal", bool sleeping = false, bool unrecruitable = false)
+        {
+            TeamMemberSpawn teamMob = GetTeamMob(id, ability, move1, move2, move3, move4, level, role, tactic, sleeping, unrecruitable);
+
+            MobSpawnBoost spawnBoost = new MobSpawnBoost();
+            spawnBoost.MaxHPBonus = boost;
+            spawnBoost.AtkBonus = boost;
+            spawnBoost.DefBonus = boost;
+            spawnBoost.SpAtkBonus = boost;
+            spawnBoost.SpDefBonus = boost;
+            spawnBoost.SpeedBonus = boost;
+            teamMob.Spawn.SpawnFeatures.Add(spawnBoost);
+
+            return teamMob;
+        }
 
         static TeamMemberSpawn GetTeamMob(string species, string ability, string move1, string move2, string move3, string move4, RandRange level,
             string tactic = "wander_normal", bool sleeping = false, bool unrecruitable = false)
@@ -636,6 +666,7 @@ namespace DataGenerator.Data
         {
             return GetGenericMob(new MonsterID(species, 0, "", Gender.Unknown), ability, move1, move2, move3, move4, level, tactic, sleeping, unrecruitable);
         }
+
         static MobSpawn GetGenericMob(MonsterID id, string ability, string move1, string move2, string move3, string move4, RandRange level,
             string tactic = "wander_normal", bool sleeping = false, bool unrecruitable = false)
         {

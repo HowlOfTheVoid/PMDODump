@@ -9,6 +9,7 @@ using System.IO.Compression;
 using Mono.Unix;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace PMDOSetup
 {
@@ -26,7 +27,7 @@ namespace PMDOSetup
         static string curVerRepo;
         static string assetSubmodule;
         static string exeSubmodule;
-        static List<string> excludedFiles;
+        static List<string> filesToDelete;
         static List<string> executableFiles;
 
         static string saveDir;
@@ -49,7 +50,7 @@ namespace PMDOSetup
             saveDir = "PMDO/SAVE";
             saveBackupDir = "SAVE.bak/";
             lastVersion = new Version(0, 0, 0, 0);
-            excludedFiles = new List<string>();
+            filesToDelete = new List<string>();
             executableFiles = new List<string>();
             //2: load xml-filename, xml name, last version, exclusions - if possible
             LoadXml();
@@ -118,9 +119,8 @@ namespace PMDOSetup
                     else if (choice == ConsoleKey.D4)
                     {
                         Console.WriteLine("Uninstalling...");
-                        DeleteWithExclusions(Path.Join(updaterPath, "PMDO"));
-                        DeleteWithExclusions(Path.Join(updaterPath, "WaypointServer"));
-                        DeleteWithExclusions(Path.Join(updaterPath, "temp"));
+                        foreach (string inclusion in filesToDelete)
+                            DeleteWithExclusions(Path.Join(updaterPath, inclusion));
                         Console.WriteLine("Done.");
                         ReadKey();
                         return;
@@ -187,10 +187,15 @@ namespace PMDOSetup
 
                 tempUpdater = Path.Join(updaterPath, "temp", "setup-" + Path.GetFileName(updaterFile));
 
+                wc.DownloadProgressChanged += Wc_DownloadProgressChanged;
+                wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
                 Console.WriteLine("Downloading from {0} to {1}. May take a while...", updaterFile, tempUpdater);
                 wc.Headers.Add("user-agent", "PMDOSetup/2.0.0");
-                wc.DownloadFile(updaterFile, tempUpdater);
-
+                DownloadIncomplete = true;
+                wc.DownloadFileAsync(new Uri(updaterFile), tempUpdater);
+                while (DownloadIncomplete)
+                    Thread.Sleep(1);
+                Console.WriteLine();
             }
 
             Console.WriteLine("Unzipping...");
@@ -224,6 +229,27 @@ namespace PMDOSetup
             Console.WriteLine("Done.");
             ReadKey();
         }
+
+        static bool DownloadIncomplete;
+        static object lockObj = new object();
+
+        private static void Wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        {
+            lock (lockObj)
+            {
+                (int Left, int Top) cursor = Console.GetCursorPosition();
+                Console.SetCursorPosition(0, cursor.Top);
+                if (e.TotalBytesToReceive > -1)
+                    Console.Write(String.Format("Progress: {0}/{1} Bytes", e.BytesReceived, e.TotalBytesToReceive));
+                else
+                    Console.Write(String.Format("Progress: {0} Bytes", e.BytesReceived));
+            }
+        }
+        private static void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        {
+            DownloadIncomplete = false;
+        }
+
 
         static Release GetSpecificRelease()
         {
@@ -271,8 +297,6 @@ namespace PMDOSetup
             string tempExe, tempAsset;
 
             bool firstInstall = lastVersion == new Version(0, 0, 0, 0);
-            if (!firstInstall)
-                Console.WriteLine("WARNING: Updates will invalidate existing quicksaves.  Be sure to finish them first!");
 
             //3: read from site what version is uploaded. if greater than the current version, upgrade
             using (var wc = new WebClient())
@@ -309,7 +333,6 @@ namespace PMDOSetup
 
                 Console.WriteLine();
                 Console.WriteLine(specificRelease.Body);
-                Console.WriteLine();
                 Console.WriteLine();
 
                 Regex pattern = new Regex(@"https://github\.com/(?<repo>\w+/\w+).git");
@@ -377,7 +400,14 @@ namespace PMDOSetup
                     assetFile = String.Format("https://api.github.com/repos/{0}/zipball/{1}", assetRepo, refStr);
                 }
 
-                Console.WriteLine("Version {0} will be downloaded from the endpoints:\n  {1}\n  {2}.\n\nPress any key to continue.", nextVersion, exeFile, assetFile);
+                Console.WriteLine("Version {0} will be downloaded from the endpoints:\n  {1}\n  {2}.", nextVersion, exeFile, assetFile);
+
+                Console.WriteLine();
+
+                if (!firstInstall)
+                    Console.WriteLine("WARNING: Updates will invalidate existing quicksaves and pending rescues.  Be sure to finish them first!");
+
+                Console.WriteLine("Press any key to continue.");
                 ReadKey();
 
                 //4: download the respective zip from specified location
@@ -386,12 +416,23 @@ namespace PMDOSetup
                 tempExe = Path.Join(updaterPath, "temp", Path.GetFileName(exeFile));
                 tempAsset = Path.Join(updaterPath, "temp", "Asset.zip");
 
+                wc.DownloadProgressChanged += Wc_DownloadProgressChanged;
+                wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
                 Console.WriteLine("Downloading from {0} to {1}. May take a while...", exeFile, tempExe);
                 wc.Headers.Add("user-agent", "PMDOSetup/2.0.0");
-                wc.DownloadFile(exeFile, tempExe);
+                DownloadIncomplete = true;
+                wc.DownloadFileAsync(new Uri(exeFile), tempExe);
+                while (DownloadIncomplete)
+                    Thread.Sleep(1);
+                Console.WriteLine();
+
                 Console.WriteLine("Downloading from {0} to {1}. May take a while...", assetFile, tempAsset);
                 wc.Headers.Add("user-agent", "PMDOSetup/2.0.0");
-                wc.DownloadFile(assetFile, tempAsset);
+                DownloadIncomplete = true;
+                wc.DownloadFileAsync(new Uri(assetFile), tempAsset);
+                while (DownloadIncomplete)
+                    Thread.Sleep(1);
+                Console.WriteLine();
             }
 
             if (!firstInstall && Directory.Exists(saveDir))
@@ -400,6 +441,11 @@ namespace PMDOSetup
 
                 copyFilesRecursively(new DirectoryInfo(saveDir), new DirectoryInfo(saveBackupDir));
             }
+
+            //Delete old files
+            Console.WriteLine("Deleting old files...");
+            foreach (string inclusion in filesToDelete)
+                DeleteWithExclusions(Path.Join(updaterPath, inclusion));
 
             //Console.WriteLine("Adjusting filenames...");
             //unzip the exe, rename, then rezip just to rename the file... ugh
@@ -442,42 +488,27 @@ namespace PMDOSetup
                         destPcs.Add(pathPcs[ii]);
 
                     string destName = String.Join("/", destPcs.ToArray());
+                    bool setPerms = executableFiles.Contains(destName);
+                    string destPath = Path.GetFullPath(Path.Join(updaterPath, Path.Combine(".", destName)));
 
-                    //go through the list of exemptions
-                    bool exempt = false;
-                    foreach (string exemption in excludedFiles)
+                    string folderPath = Path.GetDirectoryName(destPath);
+                    if (!Directory.Exists(folderPath))
+                        Directory.CreateDirectory(folderPath);
+                    if (!destPath.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal))
                     {
-                        if (exemption.StartsWith(destName, StringComparison.OrdinalIgnoreCase))
+                        entry.ExtractToFile(destPath, true);
+                        if (setPerms)
                         {
-                            exempt = true;
-                            break;
+                            var info = new UnixFileInfo(destPath);
+                            info.FileAccessPermissions = FileAccessPermissions.AllPermissions;
+                            info.Refresh();
                         }
                     }
-                    if (!exempt)
+                    else
                     {
-                        bool setPerms = executableFiles.Contains(destName);
-                        string destPath = Path.GetFullPath(Path.Join(updaterPath, Path.Combine(".", destName)));
-
-                        string folderPath = Path.GetDirectoryName(destPath);
-                        if (!Directory.Exists(folderPath))
-                            Directory.CreateDirectory(folderPath);
-                        if (!destPath.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal))
-                        {
-                            entry.ExtractToFile(destPath, true);
-                            if (setPerms)
-                            {
-                                var info = new UnixFileInfo(destPath);
-                                info.FileAccessPermissions = FileAccessPermissions.AllPermissions;
-                                info.Refresh();
-                            }
-                        }
-                        else
-                        {
-                            if (Directory.Exists(destPath))
-                                Directory.Delete(destPath, true);
+                        if (!Directory.Exists(destPath))
                             Directory.CreateDirectory(destPath);
-                            Console.WriteLine("Unzipping {0}", entry.FullName);
-                        }
+                        Console.WriteLine("Unzipping {0}", entry.FullName);
                     }
                 }
             }
@@ -564,10 +595,10 @@ namespace PMDOSetup
                     assetSubmodule = xmldoc.SelectSingleNode("Config/Asset").InnerText;
                     lastVersion = new Version(xmldoc.SelectSingleNode("Config/LastVersion").InnerText);
 
-                    excludedFiles.Clear();
-                    XmlNode keys = xmldoc.SelectSingleNode("Config/Exclusions");
-                    foreach (XmlNode key in keys.SelectNodes("Exclusion"))
-                        excludedFiles.Add(key.InnerText);
+                    filesToDelete.Clear();
+                    XmlNode keys = xmldoc.SelectSingleNode("Config/ToDelete");
+                    foreach (XmlNode key in keys.SelectNodes("Deletion"))
+                        filesToDelete.Add(key.InnerText);
 
                     executableFiles.Clear();
                     XmlNode exes = xmldoc.SelectSingleNode("Config/Executables");
@@ -594,16 +625,32 @@ namespace PMDOSetup
             curVerRepo = "audinowho/PMDODump";
             assetSubmodule = "DumpAsset";
             lastVersion = new Version(0, 0, 0, 0);
-            excludedFiles = new List<string>();
+            filesToDelete = new List<string>();
             executableFiles = new List<string>();
-            excludedFiles.Clear();
-            excludedFiles.Add("PMDO/CONFIG/");
-            excludedFiles.Add("PMDO/LOG/");
-            excludedFiles.Add("PMDO/MODS/");
-            excludedFiles.Add("PMDO/REPLAY/");
-            excludedFiles.Add("PMDO/RESCUE/");
-            excludedFiles.Add("PMDO/SAVE/");
-            executableFiles.Clear();
+            filesToDelete.Add("WaypointServer/");
+            filesToDelete.Add("PMDO/Base/");
+            filesToDelete.Add("PMDO/Content/");
+            filesToDelete.Add("PMDO/Controls/");
+            filesToDelete.Add("PMDO/Data/");
+            filesToDelete.Add("PMDO/Editor/");
+            filesToDelete.Add("PMDO/Licenses/");
+            filesToDelete.Add("PMDO/Strings/");
+            filesToDelete.Add("PMDO/MODS/All_Starters");
+            filesToDelete.Add("PMDO/MODS/Gender_Unlock");
+            filesToDelete.Add("PMDO/MODS/Music_Notice");
+            filesToDelete.Add("PMDO/MODS/Visible_Monster_Houses");
+            filesToDelete.Add("PMDO/dev.bat");
+            filesToDelete.Add("PMDO/FNA.pdb");
+            filesToDelete.Add("PMDO/KeraLua.pdb");
+            filesToDelete.Add("PMDO/NLua.pdb");
+            filesToDelete.Add("PMDO/PMDC.pdb");
+            filesToDelete.Add("PMDO/PMDO.exe");
+            filesToDelete.Add("PMDO/PMDO.png");
+            filesToDelete.Add("PMDO/README.txt");
+            filesToDelete.Add("PMDO/RogueElements.pdb");
+            filesToDelete.Add("PMDO/RogueEssence.Editor.Avalonia.pdb");
+            filesToDelete.Add("PMDO/RogueEssence.pdb");
+            filesToDelete.Add("PMDO/spritebot_credits.txt");
             executableFiles.Add("PMDO/PMDO");
             executableFiles.Add("PMDO/dev.sh");
             executableFiles.Add("PMDO/MapGenTest");
@@ -624,10 +671,10 @@ namespace PMDOSetup
                 appendConfigNode(xmldoc, docNode, "Asset", assetSubmodule);
                 appendConfigNode(xmldoc, docNode, "LastVersion", lastVersion.ToString());
 
-                XmlNode keys = xmldoc.CreateElement("Exclusions");
-                foreach (string key in excludedFiles)
+                XmlNode keys = xmldoc.CreateElement("ToDelete");
+                foreach (string key in filesToDelete)
                 {
-                    XmlNode node = xmldoc.CreateElement("Exclusion");
+                    XmlNode node = xmldoc.CreateElement("Deletion");
                     node.InnerText = key;
                     keys.AppendChild(node);
                 }
@@ -655,37 +702,44 @@ namespace PMDOSetup
             if (isExcluded(path))
                 return false;
 
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+                return true;
+            }
+
+            if (!Directory.Exists(path))
+                return true;
+
             bool deletedAll = true;
             string[] listDir = Directory.GetDirectories(path);
             foreach (string dir in listDir)
             {
                 bool deletedAllSub = DeleteWithExclusions(dir);
-
-                if (deletedAllSub)
-                    Directory.Delete(dir, false);
-                else
+                if (!deletedAllSub)
                     deletedAll = false;
             }
             string[] listFiles = Directory.GetFiles(path);
             foreach (string file in listFiles)
             {
-                if (!isExcluded(file))
-                    File.Delete(file);
-                else
+                bool deletedAllSub = DeleteWithExclusions(file);
+                if (!deletedAllSub)
                     deletedAll = false;
             }
+
+            if (deletedAll)
+                Directory.Delete(path, false);
+
             return deletedAll;
         }
 
         static bool isExcluded(string path)
         {
-            string fullPath = Path.GetFullPath(path).Replace("\\", "/").Trim('/');
-            foreach (string exclusion in excludedFiles)
-            {
-                string fullExclusion = Path.GetFullPath(exclusion).Replace("\\", "/").Trim('/');
-                if (string.Equals(fullPath, fullExclusion, StringComparison.OrdinalIgnoreCase))
-                    return true;
-            }
+            //ignore .git
+            string filename = Path.GetFileName(path);
+            if (filename == ".git")
+                return true;
+
             return false;
         }
 

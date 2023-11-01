@@ -208,7 +208,7 @@ namespace DataGenerator.Data
 
                 ItemData item = new ItemData();
                 item.UseEvent.Element = "none";
-                item.SortCategory = 16;
+                item.SortCategory = 17;
                 AutoItemInfo.FillExclusiveEffects(item, new List<LocalText>(), false, descType, new object[0], false);
 
 
@@ -515,7 +515,7 @@ namespace DataGenerator.Data
 
                     ItemData item = new ItemData();
                     item.UseEvent.Element = "none";
-                    item.SortCategory = 16;
+                    item.SortCategory = 17;
 
                     if (exclType != ExclusiveItemType.None && customName != "")
                         Console.WriteLine(String.Format("Item {0} found with both name \"{1}\" and type {2}.", fileName, customName, exclType));
@@ -796,20 +796,20 @@ namespace DataGenerator.Data
                     Stat[] boostedStats = (Stat[])args[1];
                     List<LocalText> nameList = new List<LocalText>();
                     foreach (Stat stat in boostedStats)
-                        nameList.Add(ToLocalText(stat, item.Desc, translate));
+                        nameList.Add(ToLocalText(stat, translate ? itemEffectRows[typeof(ExclusiveItemEffect).Name + "." + type] : item.Desc, translate));
 
                     localArgs.Add(BuildLocalTextList(nameList, translate));
 
                     foreach (Stat stat in boostedStats)
                     {
                         if (stat == Stat.Attack)
-                            item.OnActions.Add(0, new TypeSpecificMultCategoryEvent((string)args[0], new DustState(), BattleData.SkillCategory.Physical, 20, 1));
+                            item.OnActions.Add(0, new TypeSpecificMultCategoryEvent((string)args[0], new DustState(), BattleData.SkillCategory.Physical, 10, 1));
                         else if (stat == Stat.MAtk)
-                            item.OnActions.Add(0, new TypeSpecificMultCategoryEvent((string)args[0], new DustState(), BattleData.SkillCategory.Magical, 20, 1));
+                            item.OnActions.Add(0, new TypeSpecificMultCategoryEvent((string)args[0], new DustState(), BattleData.SkillCategory.Magical, 10, 1));
                         else if (stat == Stat.Defense)
-                            item.BeforeBeingHits.Add(0, new TypeSpecificMultCategoryEvent((string)args[0], new SilkState(), BattleData.SkillCategory.Physical, 20, 1));
+                            item.BeforeBeingHits.Add(0, new TypeSpecificMultCategoryEvent((string)args[0], new SilkState(), BattleData.SkillCategory.Physical, 10, 1));
                         else if (stat == Stat.MDef)
-                            item.BeforeBeingHits.Add(0, new TypeSpecificMultCategoryEvent((string)args[0], new SilkState(), BattleData.SkillCategory.Magical, 20, 1));
+                            item.BeforeBeingHits.Add(0, new TypeSpecificMultCategoryEvent((string)args[0], new SilkState(), BattleData.SkillCategory.Magical, 10, 1));
                     }
                 }
             }
@@ -952,7 +952,7 @@ namespace DataGenerator.Data
                 {
                     item.OnActions.Add(1, new FamilyBattleEvent(new MeleeHitTilesEvent(TileAlignment.Wall)));
                     SingleEmitter terrainEmitter = new SingleEmitter(new AnimData("Wall_Break", 2));
-                    item.OnHitTiles.Add(0, new FamilyBattleEvent(new OnMoveUseEvent(new OnMeleeActionEvent(false, new RemoveTerrainEvent("DUN_Rollout", terrainEmitter, "wall")))));
+                    item.OnHitTiles.Add(0, new FamilyBattleEvent(new OnMoveUseEvent(new OnMeleeActionEvent(false, new RemoveTerrainStateEvent("DUN_Rollout", terrainEmitter, new FlagType(typeof(WallTerrainState)))))));
                 }
             }
             else if (type == ExclusiveItemEffect.GapFiller)
@@ -961,7 +961,7 @@ namespace DataGenerator.Data
                 item.Desc = new LocalText("When kept in the bag, some of the Pokémon's moves will fill water, lava, and pits.");
                 if (includeEffects)
                 {
-                    item.OnHitTiles.Add(0, new FamilyBattleEvent(new OnMoveUseEvent(new OnMeleeActionEvent(true, new RemoveTerrainEvent("", new EmptyFiniteEmitter(), "water", "lava", "pit")))));
+                    item.OnHitTiles.Add(0, new FamilyBattleEvent(new OnMoveUseEvent(new OnMeleeActionEvent(true, new RemoveTerrainStateEvent("", new EmptyFiniteEmitter(), new FlagType(typeof(WaterTerrainState)), new FlagType(typeof(LavaTerrainState)), new FlagType(typeof(AbyssTerrainState)))))));
                 }
             }
             else if (type == ExclusiveItemEffect.PPBoost)
@@ -1130,8 +1130,8 @@ namespace DataGenerator.Data
                 item.Desc = new LocalText("When kept in the bag, the Pokémon's regular attacks and thrown items have a chance to devolve the target.");
                 if (includeEffects)
                 {
-                    item.AfterHittings.Add(0, new FamilyBattleEvent(new RegularAttackNeededEvent(new OnHitEvent(true, false, 35, new DevolveEvent(true, new BattleAnimEvent(new SingleEmitter(new AnimData("Puff_Green", 3)), "DUN_Transform", true))))));
-                    item.AfterHittings.Add(0, new FamilyBattleEvent(new ThrownItemNeededEvent(new OnHitEvent(true, false, 35, new DevolveEvent(true, new BattleAnimEvent(new SingleEmitter(new AnimData("Puff_Green", 3)), "DUN_Transform", true))))));
+                    item.AfterHittings.Add(0, new FamilyBattleEvent(new RegularAttackNeededEvent(new OnHitEvent(true, false, 35, new DevolveEvent(true, "transformed", 5, new BattleAnimEvent(new SingleEmitter(new AnimData("Puff_Green", 3)), "DUN_Transform", true))))));
+                    item.AfterHittings.Add(0, new FamilyBattleEvent(new ThrownItemNeededEvent(new OnHitEvent(true, false, 35, new DevolveEvent(true, "transformed", 5, new BattleAnimEvent(new SingleEmitter(new AnimData("Puff_Green", 3)), "DUN_Transform", true))))));
                 }
             }
             else if (type == ExclusiveItemEffect.KnockbackOnAttack)
@@ -1186,7 +1186,7 @@ namespace DataGenerator.Data
                 {
                     localArgs.Add(DataManager.Instance.GetStatus((string)args[0]).Name);
                     BattleData.SkillCategory category = (BattleData.SkillCategory)args[1];
-                    localArgs.Add(ToLocalText(category, item.Desc, translate));
+                    localArgs.Add(ToLocalText(category, translate ? itemEffectRows[typeof(ExclusiveItemEffect).Name + "." + type] : item.Desc, translate));
 
                     item.AfterHittings.Add(0, new FamilyBattleEvent(new CategoryNeededEvent(category, new OnHitEvent(false, false, 100, new StatusBattleEvent((string)args[0], true, true, false, new StringKey("MSG_EXCL_ITEM_TYPE"))))));
                 }
@@ -1199,7 +1199,7 @@ namespace DataGenerator.Data
                 {
                     localArgs.Add(DataManager.Instance.GetStatus((string)args[0]).Name);
                     BattleData.SkillCategory category = (BattleData.SkillCategory)args[1];
-                    localArgs.Add(ToLocalText(category, item.Desc, translate));
+                    localArgs.Add(ToLocalText(category, translate ? itemEffectRows[typeof(ExclusiveItemEffect).Name + "." + type] : item.Desc, translate));
                     int chance = (int)args[2];
 
                     item.AfterHittings.Add(0, new FamilyBattleEvent(new CategoryNeededEvent(category, new OnHitEvent(false, false, chance, new StatusBattleEvent((string)args[0], true, true, false, new StringKey("MSG_EXCL_ITEM_TYPE"))))));
@@ -1254,7 +1254,7 @@ namespace DataGenerator.Data
                 {
                     localArgs.Add(DataManager.Instance.GetStatus((string)args[0]).Name);
                     BattleData.SkillCategory category = (BattleData.SkillCategory)args[1];
-                    localArgs.Add(ToLocalText(category, item.Desc, translate));
+                    localArgs.Add(ToLocalText(category, translate ? itemEffectRows[typeof(ExclusiveItemEffect).Name + "." + type] : item.Desc, translate));
 
                     item.AfterActions.Add(0, new FamilyBattleEvent(new CategoryNeededEvent(category, new StatusBattleEvent((string)args[0], false, true, false, new StringKey("MSG_EXCL_ITEM_TYPE")))));
                 }
@@ -1267,7 +1267,7 @@ namespace DataGenerator.Data
                 {
                     localArgs.Add(DataManager.Instance.GetStatus((string)args[0]).Name);
                     BattleData.SkillCategory category = (BattleData.SkillCategory)args[1];
-                    localArgs.Add(ToLocalText(category, item.Desc, translate));
+                    localArgs.Add(ToLocalText(category, translate ? itemEffectRows[typeof(ExclusiveItemEffect).Name + "." + type] : item.Desc, translate));
 
                     item.AfterActions.Add(0, new FamilyBattleEvent(new CategoryNeededEvent(category, new StatusStackBattleEvent((string)args[0], false, true, false, 1, new StringKey("MSG_EXCL_ITEM_TYPE")))));
                 }
@@ -1279,7 +1279,7 @@ namespace DataGenerator.Data
                 if (includeEffects)
                 {
                     BattleData.SkillCategory category = (BattleData.SkillCategory)args[0];
-                    localArgs.Add(ToLocalText(category, item.Desc, translate));
+                    localArgs.Add(ToLocalText(category, translate ? itemEffectRows[typeof(ExclusiveItemEffect).Name + "." + type] : item.Desc, translate));
                     MapStatusData mapStatus = DataManager.Instance.GetMapStatus((string)args[1]);
                     localArgs.Add(mapStatus.Name);
 
@@ -1314,7 +1314,7 @@ namespace DataGenerator.Data
                     Stat[] boostedStats = (Stat[])args[0];
                     List<LocalText> nameList = new List<LocalText>();
                     foreach (Stat stat in boostedStats)
-                        nameList.Add(ToLocalText(stat, item.Desc, translate));
+                        nameList.Add(ToLocalText(stat, translate ? itemEffectRows[typeof(ExclusiveItemEffect).Name + "." + type] : item.Desc, translate));
 
                     localArgs.Add(BuildLocalTextList(nameList, translate));
 
@@ -1578,7 +1578,7 @@ namespace DataGenerator.Data
                 item.Desc = new LocalText("When kept in the bag, the Pokémon will gradually restore the HP of its allies when its own HP is full.");
                 if (includeEffects)
                 {
-                    item.OnTurnEnds.Add(-3, new FamilySingleEvent(new RoyalVeilEvent(4)));
+                    item.OnTurnEnds.Add(-3, new FamilySingleEvent(new RoyalVeilEvent(4, 16)));
                 }
             }
             else if (type == ExclusiveItemEffect.Celebrate)
@@ -1623,7 +1623,7 @@ namespace DataGenerator.Data
                     newData.HitRate = -1;
                     newData.OnHits.Add(-1, new MaxHPDamageEvent(6));
 
-                    item.AfterHittings.Add(0, new FamilyBattleEvent(new TargetDeadNeededEvent(new InvokeCustomBattleEvent(altAction, altExplosion, newData, new StringKey("MSG_EXCESSIVE_FORCE")))));
+                    item.AfterHittings.Add(0, new FamilyBattleEvent(new TargetDeadNeededEvent(new InvokeCustomBattleEvent(altAction, altExplosion, newData, new StringKey("MSG_EXCESSIVE_FORCE"), true))));
                 }
             }
             else if (type == ExclusiveItemEffect.CelebrateCure)
@@ -1872,11 +1872,11 @@ namespace DataGenerator.Data
             else if (type == ExclusiveItemEffect.EndureCategory)
             {
                 item.Rarity = 5;
-                item.Desc = new LocalText("When kept in the bag, prevents the Pokémon from fainting to {0} moves, leaving it with 1 HP.");
+                item.Desc = new LocalText("When kept in the bag, it prevents the Pokémon from fainting to {0} moves, leaving it with 1 HP.");
                 if (includeEffects)
                 {
                     BattleData.SkillCategory category = (BattleData.SkillCategory)args[0];
-                    localArgs.Add(ToLocalText(category, item.Desc, translate));
+                    localArgs.Add(ToLocalText(category, translate ? itemEffectRows[typeof(ExclusiveItemEffect).Name + "." + type] : item.Desc, translate));
 
                     item.BeforeBeingHits.Add(0, new FamilyBattleEvent(new OnMoveUseEvent(new EndureCategoryEvent(category))));
                 }
@@ -1884,7 +1884,7 @@ namespace DataGenerator.Data
             else if (type == ExclusiveItemEffect.EndureType)
             {
                 item.Rarity = 5;
-                item.Desc = new LocalText("When kept in the bag, prevents the Pokémon from fainting to {0}-type moves, leaving it with 1 HP.");
+                item.Desc = new LocalText("When kept in the bag, it prevents the Pokémon from fainting to {0}-type moves, leaving it with 1 HP.");
                 if (includeEffects)
                 {
                     string element = (string)args[0];
@@ -1900,7 +1900,7 @@ namespace DataGenerator.Data
                 if (includeEffects)
                 {
                     BattleData.SkillCategory category = (BattleData.SkillCategory)args[0];
-                    localArgs.Add(ToLocalText(category, item.Desc, translate));
+                    localArgs.Add(ToLocalText(category, translate ? itemEffectRows[typeof(ExclusiveItemEffect).Name + "." + type] : item.Desc, translate));
 
                     item.AfterBeingHits.Add(0, new FamilyBattleEvent(new CategoryNeededEvent(category, new CounterTrapEvent("trap_spikes"))));
                 }
@@ -1973,7 +1973,7 @@ namespace DataGenerator.Data
                 item.Name.DefaultText = "**" + item.Name.DefaultText;
             }
 
-           if (translate)
+            if (translate)
             {
                 item.Desc = itemEffectRows[typeof(ExclusiveItemEffect).Name + "." + type];
             }
@@ -1984,7 +1984,8 @@ namespace DataGenerator.Data
         {
             string fileName = "xcl_test_" + Text.Sanitize(effect.ToString()).ToLower();
 
-            AutoItemInfo.FillSpecificExclusiveData(fileName, item, "", "**" + effect.ToString() + " Test", ExclusiveItemType.None, effect, effectArgs, "bulbasaur", translate);
+            AutoItemInfo.FillSpecificExclusiveData(fileName, item, "", effect.ToString() + " Test", ExclusiveItemType.None, effect, effectArgs, "bulbasaur", translate);
+            item.Name.DefaultText = "**" + item.Name.DefaultText;
 
             return fileName;
         }
@@ -2193,16 +2194,13 @@ namespace DataGenerator.Data
             {
                 if (ii > 0)
                 {
-                    if (input.Length > 2)
-                        totalString.Append(", ");
-                    else if (ii == input.Length - 1)
-                    {
-                        string key = "ADD_END";
-                        string text;
-                        if (!stringsAll[code].TryGetValue(key, out text))
-                            text = stringsAll[""][key];
-                        totalString.Append(text + " ");
-                    }
+                    string key = "ADD_SEPARATOR";
+                    if (ii == input.Length - 1)
+                        key = "ADD_END";
+                    string text;
+                    if (!stringsAll[code].TryGetValue(key, out text))
+                        text = stringsAll[""][key];
+                    totalString.Append(text);
                 }
                 totalString.Append(input[ii]);
             }

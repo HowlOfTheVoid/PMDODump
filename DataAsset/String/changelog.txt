@@ -1,28 +1,2 @@
 Sheet: Hardcode
 
-Sheet: Content
-
-Sheet: Script
-
-Sheet: Abilities
-
-Sheet: Items
-
-Sheet: MapStatuses
-
-Sheet: Moves
-
-Sheet: Statuses
-
-Sheet: Tiles
-
-Sheet: Excl Names
-
-Sheet: Excl Effects
-
-Sheet: Zones
-
-Sheet: Maps
-
-Sheet: GroundMaps
-
